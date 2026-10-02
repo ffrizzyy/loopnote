@@ -4,168 +4,782 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Loopnote — Review</title>
+<!-- The only external request this page makes. Without it the page still
+     works, on the fallback stacks declared in --serif / --sans below. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
 <style>
   :root {
-    /* Light only: every colour below is a light-theme value, and
-       advertising "dark" made the browser render dark form controls on
-       the white card for anyone with a dark OS theme. */
+    /* Light only: every colour below is a light-theme value. */
     color-scheme: light;
-    --bg: #f5f5f4;
-    --card-bg: #ffffff;
-    --text: #1c1917;
-    --muted: #78716c;
-    --accent: #4f46e5;
-    --danger: #b91c1c;
-    --warn-bg: #fef9c3;
-    --warn-text: #854d0e;
-    --border: #e7e5e4;
+
+    --paper: #fbf8f1;
+    --core: #fffdf8;
+    --ink: #2a211c;
+    --ink-soft: #5c5048;
+    --muted: #8f8378;
+    --sage: #5f7161;
+    --sage-wash: #e9eee4;
+    --clay: #a8472a;
+    --clay-wash: #f6e3da;
+    --amber-wash: #f3e7c9;
+    --amber-ink: #7a5a12;
+
+    /* The ink colour at low alpha does the work a grey border would. */
+    --hairline: rgba(42, 33, 28, 0.08);
+    --shell: rgba(42, 33, 28, 0.035);
+    --tint: rgba(42, 33, 28, 0.06);
+
+    --serif: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, monospace;
+
+    /* One curve for everything: fast out of the gate, long settle. */
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --r-shell: 2rem;
+    --bezel: 0.5rem;
+    --r-core: calc(var(--r-shell) - var(--bezel));
   }
+
   * { box-sizing: border-box; }
+
+  html {
+    background:
+      radial-gradient(60rem 40rem at 12% -10%, rgba(95, 113, 97, 0.1), transparent 60%),
+      radial-gradient(50rem 40rem at 100% 100%, rgba(168, 71, 42, 0.07), transparent 60%),
+      var(--paper);
+  }
+
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
+    min-height: 100dvh;
+    font-family: var(--sans);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Paper grain. Fixed and inert, so it never repaints with scrolling. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .icon {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex: none;
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--sage);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Floating island ---------- */
+  .island {
+    position: fixed;
+    top: 1.25rem;
+    left: 50%;
+    z-index: 20;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 24px 16px 64px;
-  }
-  header {
-    width: 100%;
-    max-width: 480px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  h1 { font-size: 1.1rem; margin: 0; }
-  .config {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-  .config input {
-    font-size: 0.75rem;
-    padding: 4px 6px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    width: 150px;
-  }
-  main { width: 100%; max-width: 480px; }
-  .card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  }
-  .badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 3px 8px;
+    gap: 0.875rem;
+    padding: 0.375rem 0.375rem 0.375rem 1.125rem;
     border-radius: 999px;
-    background: var(--warn-bg);
-    color: var(--warn-text);
-    margin-bottom: 10px;
+    background: rgba(255, 253, 248, 0.72);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow:
+      0 0 0 1px var(--hairline),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7),
+      0 24px 48px -28px rgba(42, 33, 28, 0.28);
+    transform: translateX(-50%);
+    animation: island-in 1s var(--ease) both;
   }
-  .topic { font-size: 0.8rem; color: var(--muted); margin: 0 0 4px; }
-  .summary { font-size: 1rem; margin: 0 0 12px; line-height: 1.4; }
-  details { margin-bottom: 12px; }
-  summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); }
-  .extracted-text {
-    white-space: pre-wrap;
-    font-size: 0.85rem;
-    color: var(--muted);
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 10px;
-    max-height: 160px;
-    overflow-y: auto;
-    margin-top: 8px;
+  @keyframes island-in {
+    from { opacity: 0; transform: translate(-50%, -1.5rem); }
+    to { opacity: 1; transform: translate(-50%, 0); }
   }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-  .tag {
-    font-size: 0.7rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 2px 8px;
-    color: var(--muted);
-  }
-  .flashcard-count { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
-  .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-  .row { display: flex; gap: 8px; }
-  input[type="text"], select {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.9rem;
-  }
-  button {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: none;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
     white-space: nowrap;
   }
-  .btn-keep { background: var(--accent); color: white; }
-  .btn-merge { background: #eef2ff; color: var(--accent); }
-  .btn-discard { background: transparent; color: var(--danger); border: 1px solid #fecaca; }
-  .flag-row {
+  .brand .icon { width: 1.125rem; height: 1.125rem; color: var(--sage); }
+  .island__rule { width: 1px; height: 1.25rem; background: var(--hairline); }
+  .api {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
+    gap: 0.5rem;
+    min-width: 0;
   }
-  .flag-label { font-size: 0.7rem; color: var(--muted); margin-right: 2px; }
-  .btn-flag {
-    background: transparent;
+  .api label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
     color: var(--muted);
-    border: 1px solid var(--border);
-    font-size: 0.7rem;
+  }
+  .api input {
+    width: 13rem;
+    min-width: 0;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.5rem 0.875rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    background: var(--tint);
+    transition: background-color 0.5s var(--ease), box-shadow 0.5s var(--ease);
+  }
+  .api input:focus {
+    outline: none;
+    background: var(--core);
+    box-shadow: 0 0 0 1px rgba(95, 113, 97, 0.5);
+  }
+  .round {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border: 0;
+    border-radius: 50%;
+    color: var(--paper);
+    background: var(--ink);
+    cursor: pointer;
+    transition: transform 0.6s var(--ease);
+  }
+  .round:hover { transform: rotate(90deg); }
+  .round:active { transform: rotate(90deg) scale(0.94); }
+
+  /* ---------- Editorial split ---------- */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: start;
+    max-width: 78rem;
+    min-height: 100dvh;
+    margin: 0 auto;
+    padding: 10rem 2.5rem 8rem;
+  }
+
+  .lede { position: sticky; top: 10rem; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--tint);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 50%;
+    background: var(--sage);
+  }
+  .eyebrow--warn { color: var(--amber-ink); background: var(--amber-wash); box-shadow: none; }
+  .eyebrow--warn::before { background: var(--amber-ink); }
+
+  h1 {
+    margin: 1.75rem 0 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(3.25rem, 7.4vw, 6.5rem);
+    line-height: 0.94;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  h1 em { font-style: italic; color: var(--sage); }
+
+  .lede__copy {
+    max-width: 26rem;
+    margin: 2rem 0 0;
+    font-size: 1.0625rem;
+    color: var(--ink-soft);
+  }
+
+  .stats {
+    display: flex;
+    gap: 3rem;
+    margin: 3.5rem 0 0;
+    padding-top: 1.5rem;
+    box-shadow: inset 0 1px 0 var(--hairline);
+  }
+  .stats div { display: flex; flex-direction: column; gap: 0.125rem; }
+  .stats dt {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stats dd {
+    margin: 0;
+    font-family: var(--serif);
+    font-size: 2.25rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Entry choreography ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(4rem);
+    filter: blur(12px);
+    transition:
+      opacity 0.9s var(--ease),
+      transform 0.9s var(--ease),
+      filter 0.9s var(--ease);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  .reveal.is-in { opacity: 1; transform: none; filter: none; }
+
+  /* ---------- The deck: one card, with the rest of the stack behind ---------- */
+  .stage { justify-self: end; width: 100%; max-width: 33rem; }
+
+  .deck { position: relative; isolation: isolate; }
+  .deck::before,
+  .deck::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--r-shell);
+    background: var(--core);
+    box-shadow: 0 0 0 1px var(--hairline);
+    opacity: 0;
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  }
+  .deck[data-depth="2"]::before,
+  .deck[data-depth="3"]::before { opacity: 0.75; transform: rotate(-2deg) translate(-0.375rem, 0.5rem); }
+  .deck[data-depth="3"]::after { opacity: 0.45; transform: rotate(2.5deg) translate(0.625rem, 0.875rem); }
+
+  .deck.is-leaving { pointer-events: none; animation: 0.55s var(--ease) forwards; }
+  .deck.is-leaving--keep,
+  .deck.is-leaving--merge { animation-name: leave-filed; }
+  .deck.is-leaving--discard { animation-name: leave-dropped; }
+  @keyframes leave-filed {
+    to { opacity: 0; transform: translate(3.5rem, -1.5rem) rotate(4deg); }
+  }
+  @keyframes leave-dropped {
+    to { opacity: 0; transform: translateY(3rem) rotate(-3deg) scale(0.96); }
+  }
+
+  /* Double bezel: a tray (shell) holding a plate (core), on concentric radii. */
+  .shell {
+    padding: var(--bezel);
+    border-radius: var(--r-shell);
+    background: var(--shell);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .core {
+    padding: 2rem;
+    border-radius: var(--r-core);
+    background: var(--core);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      0 1px 1px rgba(42, 33, 28, 0.03),
+      0 30px 60px -30px rgba(42, 33, 28, 0.16);
+  }
+
+  .card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 1.5rem;
+  }
+  .counter {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .topic-hint {
+    margin: 1.5rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .topic-hint strong { font-weight: 600; color: var(--ink-soft); }
+  .summary {
+    margin: 0.5rem 0 0;
+    font-family: var(--serif);
+    font-size: 1.75rem;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+  .summary--empty { color: var(--muted); font-style: italic; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 1.25rem 0 0; }
+  .tag {
+    border-radius: 999px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.6875rem;
     font-weight: 500;
-    padding: 4px 8px;
+    color: var(--sage);
+    background: var(--sage-wash);
   }
-  .btn-flag:hover { color: var(--danger); border-color: #fecaca; }
-  .btn-refresh { background: transparent; color: var(--accent); border: 1px solid var(--border); }
-  .empty, .loading, .error {
-    text-align: center;
-    padding: 48px 16px;
+  .tag--plain { color: var(--ink-soft); background: var(--tint); }
+
+  .folds { margin-top: 1.5rem; box-shadow: inset 0 1px 0 var(--hairline); }
+  details { box-shadow: inset 0 -1px 0 var(--hairline); }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    list-style: none;
+    cursor: pointer;
+    transition: color 0.5s var(--ease);
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { color: var(--ink); }
+  summary .icon { transition: transform 0.6s var(--ease); }
+  details[open] summary .icon { transform: rotate(180deg); }
+  details[open] .fold { animation: fold-in 0.7s var(--ease) both; }
+  @keyframes fold-in {
+    from { opacity: 0; transform: translateY(-0.5rem); }
+    to { opacity: 1; transform: none; }
+  }
+  .fold { padding-bottom: 1rem; }
+  .extracted {
+    max-height: 11rem;
+    margin: 0;
+    padding: 0.875rem 1rem;
+    overflow-y: auto;
+    border-radius: 0.875rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--ink-soft);
+    background: var(--tint);
+  }
+  .cards { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  .cards li { padding: 0.75rem 1rem; border-radius: 0.875rem; background: var(--tint); }
+  .cards .q { margin: 0; font-size: 0.8125rem; font-weight: 600; overflow-wrap: anywhere; }
+  .cards .a { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+
+  /* ---------- Controls ---------- */
+  .actions { display: grid; gap: 0.75rem; margin-top: 1.75rem; }
+  .row { display: flex; align-items: center; gap: 0.5rem; }
+
+  .field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 0.25rem;
+    border-radius: 999px;
+    background: var(--shell);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    transition: box-shadow 0.5s var(--ease);
+  }
+  .field:focus-within { box-shadow: inset 0 0 0 1px rgba(95, 113, 97, 0.55); }
+  .field input,
+  .field select {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--ink);
+    background: var(--core);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(42, 33, 28, 0.05);
+  }
+  .field input:focus,
+  .field select:focus { outline: none; }
+  .field input::placeholder { color: var(--muted); }
+  .field select { appearance: none; padding-right: 2.5rem; text-overflow: ellipsis; cursor: pointer; }
+  .field select:disabled { color: var(--muted); cursor: not-allowed; }
+  .field > .icon {
+    position: absolute;
+    top: 50%;
+    right: 1.125rem;
+    margin-top: -0.5rem;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.4rem 0.4rem 0.4rem 1.25rem;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 0.5s var(--ease),
+      background-color 0.5s var(--ease),
+      color 0.5s var(--ease),
+      box-shadow 0.5s var(--ease),
+      opacity 0.5s var(--ease);
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn__icon {
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 50%;
+    transition: transform 0.5s var(--ease);
+  }
+  .btn:not(:disabled):hover .btn__icon { transform: translate(3px, -1px) scale(1.05); }
+  .btn--primary { color: var(--paper); background: var(--ink); box-shadow: 0 14px 28px -16px rgba(42, 33, 28, 0.55); }
+  .btn--primary .btn__icon { background: rgba(255, 253, 248, 0.14); }
+  .btn--quiet { color: var(--ink); background: var(--tint); }
+  .btn--quiet .btn__icon { background: var(--core); box-shadow: 0 1px 2px rgba(42, 33, 28, 0.08); }
+  .btn--bare {
+    gap: 0.4rem;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .btn--bare:not(:disabled):hover { color: var(--clay); box-shadow: inset 0 0 0 1px rgba(168, 71, 42, 0.3); }
+  .btn--bare.is-armed { color: var(--paper); background: var(--clay); box-shadow: none; }
+
+  .suggestion {
+    margin: 0.25rem 0 0;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    color: var(--sage);
+    background: var(--sage-wash);
+  }
+  .suggestion strong { font-weight: 700; }
+
+  .card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 1.25rem;
+    box-shadow: inset 0 1px 0 var(--hairline);
+  }
+  .flags { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
+  .flags__label {
+    margin-right: 0.25rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
     color: var(--muted);
   }
-  .empty .big { font-size: 2rem; margin-bottom: 8px; }
-  .progress { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 12px; }
-  .error { color: var(--danger); }
+
+  /* ---------- Empty / error / loading ---------- */
+  .state { padding: 3rem 2rem; text-align: center; }
+  .state__mark {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    color: var(--sage);
+    background: var(--sage-wash);
+  }
+  .state__mark .icon { width: 1.375rem; height: 1.375rem; }
+  .state--error .state__mark { color: var(--clay); background: var(--clay-wash); }
+  .state h2 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .state p { max-width: 22rem; margin: 0.75rem auto 0; color: var(--ink-soft); overflow-wrap: anywhere; }
+  .state .btn { margin-top: 2rem; }
+  .state code { font-family: var(--mono); font-size: 0.8125rem; }
+
+  .skeleton { display: grid; gap: 0.875rem; }
+  .skeleton span {
+    height: 0.875rem;
+    border-radius: 999px;
+    background: var(--tint);
+    animation: breathe 1.6s var(--ease) infinite alternate;
+  }
+  .skeleton span:nth-child(1) { width: 30%; }
+  .skeleton span:nth-child(2) { height: 2rem; width: 92%; animation-delay: 0.12s; }
+  .skeleton span:nth-child(3) { height: 2rem; width: 70%; animation-delay: 0.24s; }
+  .skeleton span:nth-child(4) { width: 48%; margin-top: 1rem; animation-delay: 0.36s; }
+  @keyframes breathe { from { opacity: 1; } to { opacity: 0.35; } }
+
+  /* ---------- Flag dialog ---------- */
+  dialog {
+    width: min(28rem, calc(100vw - 2rem));
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    overflow: visible;
+  }
+  dialog[open] { animation: dialog-in 0.6s var(--ease) both; }
+  /* Over the dimmed backdrop the translucent tray would go muddy. */
+  dialog .shell {
+    background: rgba(251, 248, 241, 0.92);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5), 0 40px 80px -30px rgba(42, 33, 28, 0.45);
+  }
+  dialog::backdrop {
+    background: rgba(42, 33, 28, 0.32);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: fade-in 0.6s var(--ease) both;
+  }
+  @keyframes dialog-in {
+    from { opacity: 0; transform: translateY(1.5rem) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  dialog h2 {
+    margin: 1.25rem 0 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  dialog p { margin: 0.5rem 0 1.25rem; font-size: 0.8125rem; color: var(--ink-soft); }
+  dialog textarea {
+    display: block;
+    width: 100%;
+    min-height: 6.5rem;
+    border: 0;
+    border-radius: 1rem;
+    padding: 0.875rem 1rem;
+    font: inherit;
+    font-size: 0.875rem;
+    color: var(--ink);
+    background: var(--tint);
+    resize: vertical;
+    transition: box-shadow 0.5s var(--ease), background-color 0.5s var(--ease);
+  }
+  dialog textarea:focus {
+    outline: none;
+    background: var(--core);
+    box-shadow: inset 0 0 0 1px rgba(95, 113, 97, 0.55);
+  }
+  .dialog__actions { display: flex; justify-content: flex-end; align-items: center; gap: 0.5rem; margin-top: 1.5rem; }
+
+  /* ---------- Toasts ---------- */
+  .toasts {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    z-index: 40;
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    max-width: 100%;
+    border-radius: 999px;
+    padding: 0.7rem 1.125rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--paper);
+    background: var(--ink);
+    box-shadow: 0 24px 48px -20px rgba(42, 33, 28, 0.5);
+    animation: toast-in 0.7s var(--ease) both;
+  }
+  .toast.is-out { animation: toast-out 0.5s var(--ease) forwards; }
+  .toast--error { background: var(--clay); }
+  .toast span { overflow-wrap: anywhere; }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(1.25rem) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes toast-out { to { opacity: 0; transform: translateY(0.75rem) scale(0.98); } }
+
+  /* ---------- Below 768px: one column, no overlap, no rotation ---------- */
+  @media (max-width: 767px) {
+    .island { width: calc(100% - 2rem); gap: 0.625rem; padding-left: 0.875rem; }
+    .island__rule, .api label { display: none; }
+    .api { flex: 1; }
+    .api input { width: 100%; }
+
+    .split { grid-template-columns: minmax(0, 1fr); gap: 2.5rem; padding: 7rem 1rem 6rem; }
+    .lede { position: static; }
+    h1 { margin-top: 1.25rem; font-size: clamp(2.75rem, 14vw, 3.75rem); }
+    .lede__copy { margin-top: 1.25rem; font-size: 1rem; }
+    .stats { gap: 2.5rem; margin-top: 2rem; padding-top: 1.25rem; }
+    .stage { justify-self: stretch; max-width: none; }
+
+    .deck::before, .deck::after { display: none; }
+    .core { padding: 1.5rem 1.25rem; }
+    .summary { font-size: 1.5rem; }
+    .state { padding: 2.5rem 1rem; }
+    .card__foot { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+    }
+    .reveal { opacity: 1; transform: none; filter: none; }
+  }
 </style>
 </head>
 <body>
-  <header>
-    <h1>📥 Review</h1>
-    <div class="config">
-      API:
-      <input id="api-base" type="text" />
+  <div class="grain" aria-hidden="true"></div>
+
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-loop" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" /><path d="M18 3v4h-4M6 21v-4h4" /></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8" /></symbol>
+      <symbol id="i-merge" viewBox="0 0 24 24"><path d="M6 4v5a6 6 0 0 0 6 6h7M15 11l4 4-4 4" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 5h12l-2.5 4L17 13H5" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 8v5M12 16.5v.01" /><circle cx="12" cy="12" r="9" /></symbol>
+    </defs>
+  </svg>
+
+  <nav class="island" aria-label="Review">
+    <span class="brand"><svg class="icon"><use href="#i-loop" /></svg>Loopnote</span>
+    <span class="island__rule"></span>
+    <div class="api">
+      <label for="api-base">API</label>
+      <input id="api-base" type="text" spellcheck="false" autocomplete="off" aria-label="API base URL" />
     </div>
-  </header>
-  <main id="app">
-    <div class="loading">Loading…</div>
+    <button class="round" type="button" data-action="reload" aria-label="Refresh the review queue">
+      <svg class="icon"><use href="#i-loop" /></svg>
+    </button>
+  </nav>
+
+  <main class="split">
+    <section class="lede">
+      <span class="eyebrow reveal" style="--i: 0">Review queue</span>
+      <h1 id="headline" class="reveal" style="--i: 1" aria-live="polite">Fetching<br /><em>the stack…</em></h1>
+      <p class="lede__copy reveal" style="--i: 2">
+        Keep what matters, fold it into a topic, or let it go. Nothing is filed until you say so.
+      </p>
+      <dl class="stats reveal" style="--i: 3">
+        <div><dt>In the stack</dt><dd id="stat-queue">–</dd></div>
+        <div><dt>Topics</dt><dd id="stat-topics">–</dd></div>
+      </dl>
+    </section>
+
+    <section class="stage" id="app" aria-label="Current note"></section>
   </main>
+
+  <dialog id="flag-dialog" aria-labelledby="flag-title">
+    <div class="shell">
+      <form class="core" id="flag-form" method="dialog">
+        <span class="eyebrow">Flag for the team</span>
+        <h2 id="flag-title"></h2>
+        <p>Optional — a line on what went wrong helps whoever picks this up.</p>
+        <textarea id="flag-reason" placeholder="e.g. It read the diagram labels as body text" aria-label="What went wrong"></textarea>
+        <div class="dialog__actions">
+          <button class="btn btn--bare" type="button" data-action="flag-cancel">Cancel</button>
+          <button class="btn btn--primary" type="submit">
+            Send flag
+            <span class="btn__icon"><svg class="icon"><use href="#i-arrow" /></svg></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 
   <script>
     const API_KEY = "loopnote-review-api-base";
+    const DEFAULT_API = "http://localhost:4000";
+    const DISCARD_ARM_MS = 3000;
+
+    const app = document.getElementById("app");
+    const headline = document.getElementById("headline");
+    const statQueue = document.getElementById("stat-queue");
+    const statTopics = document.getElementById("stat-topics");
+    const toasts = document.getElementById("toasts");
+    const flagDialog = document.getElementById("flag-dialog");
+    const flagForm = document.getElementById("flag-form");
+    const flagTitle = document.getElementById("flag-title");
+    const flagReason = document.getElementById("flag-reason");
     const apiBaseInput = document.getElementById("api-base");
-    apiBaseInput.value = localStorage.getItem(API_KEY) || "http://localhost:4000";
+
+    // localStorage can throw (blocked site data, some file:// contexts) —
+    // the page should still work, just without remembering the address.
+    function readStoredApi() {
+      try {
+        return localStorage.getItem(API_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    apiBaseInput.value = readStoredApi() || DEFAULT_API;
     apiBaseInput.addEventListener("change", () => {
-      localStorage.setItem(API_KEY, apiBaseInput.value.trim());
+      try {
+        localStorage.setItem(API_KEY, apiBaseInput.value.trim());
+      } catch {
+        // Not remembered; still used for this session.
+      }
       load();
     });
 
@@ -175,10 +789,59 @@
 
     let queue = [];
     let topics = [];
-    const app = document.getElementById("app");
+    let busy = false;
+    let flagTarget = null;
+    let disarmTimer = null;
 
-    async function load() {
-      app.innerHTML = '<div class="loading">Loading…</div>';
+    // Escapes quotes too, not just < > & — several of these values land
+    // inside attributes (value="…"), and the suggested topic is derived
+    // from an uploaded filename, which can contain a double quote.
+    function escapeHtml(str) {
+      return String(str).replace(
+        /[&<>"']/g,
+        (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]
+      );
+    }
+
+    const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="#i-${name}" /></svg>`;
+
+    // Entry animation: elements start displaced and settle as they enter
+    // the viewport. Without IntersectionObserver they simply appear.
+    const revealer =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                entry.target.classList.add("is-in");
+                revealer.unobserve(entry.target);
+              }
+            },
+            { threshold: 0.08 }
+          )
+        : null;
+
+    function reveal(root) {
+      for (const el of root.querySelectorAll(".reveal:not(.is-in)")) {
+        if (revealer) revealer.observe(el);
+        else el.classList.add("is-in");
+      }
+    }
+
+    function setHeadline(html) {
+      headline.innerHTML = html;
+    }
+
+    function setStage(html) {
+      app.innerHTML = html;
+      reveal(app);
+    }
+
+    async function load({ quiet = false } = {}) {
+      // `quiet` refreshes after an action: the outgoing card has already
+      // animated away, so flashing a loading state in between would only
+      // add a flicker.
+      if (!quiet) renderLoading();
       try {
         const [pendingRes, topicsRes] = await Promise.all([
           fetch(`${apiBase()}/review/pending`),
@@ -191,114 +854,172 @@
         topics = topicsBody.topics;
         render();
       } catch (err) {
-        app.innerHTML = `<div class="error">Couldn't reach the API at ${escapeHtml(apiBase())}.<br>${escapeHtml(err.message)}<br><br>
-          <button class="btn-refresh" onclick="load()">Try again</button></div>`;
+        renderError(err);
       }
     }
 
+    function renderLoading() {
+      setHeadline("Fetching<br /><em>the stack…</em>");
+      setStage(`
+        <div class="deck reveal">
+          <div class="shell"><div class="core"><div class="skeleton" aria-label="Loading">
+            <span></span><span></span><span></span><span></span>
+          </div></div></div>
+        </div>`);
+    }
+
+    function renderError(err) {
+      setHeadline("Can’t reach<br /><em>the server.</em>");
+      statQueue.textContent = "–";
+      statTopics.textContent = "–";
+      setStage(`
+        <div class="deck reveal">
+          <div class="shell"><div class="core state state--error">
+            <div class="state__mark">${icon("alert")}</div>
+            <h2>No answer from the API</h2>
+            <p>Tried <code>${escapeHtml(apiBase())}</code><br />${escapeHtml(err.message)}</p>
+            <button class="btn btn--primary" type="button" data-action="reload">
+              Try again <span class="btn__icon">${icon("loop")}</span>
+            </button>
+          </div></div>
+        </div>`);
+    }
+
     function render() {
+      statQueue.textContent = String(queue.length).padStart(2, "0");
+      statTopics.textContent = String(topics.length).padStart(2, "0");
+
       if (queue.length === 0) {
-        app.innerHTML = `
-          <div class="empty">
-            <div class="big">✅</div>
-            You're all caught up — nothing waiting for review.<br>
-            Import a few photos, then come back.
-            <div style="margin-top:16px">
-              <button class="btn-refresh" onclick="load()">Check again</button>
-            </div>
-          </div>`;
+        setHeadline("All caught up.<br /><em>Rest easy.</em>");
+        setStage(`
+          <div class="deck reveal">
+            <div class="shell"><div class="core state">
+              <div class="state__mark">${icon("check")}</div>
+              <h2>The stack is empty</h2>
+              <p>Import a few photos from the app, then come back — they’ll land here once they’re processed.</p>
+              <button class="btn btn--quiet" type="button" data-action="reload">
+                Check again <span class="btn__icon">${icon("loop")}</span>
+              </button>
+            </div></div>
+          </div>`);
         return;
       }
 
+      setHeadline(`<em>${queue.length}</em> ${queue.length === 1 ? "note" : "notes"}<br />waiting on you.`);
+
       const item = queue[0];
-      const suggestedId = item.suggestedExistingTopic ? item.suggestedExistingTopic.topicId : null;
+      const suggested = item.suggestedExistingTopic;
+      const suggestedId = suggested ? suggested.topicId : null;
+      const hasTopics = topics.length > 0;
       const topicOptions = topics
         .map(
           (t) =>
             `<option value="${escapeHtml(t.id)}" ${t.id === suggestedId ? "selected" : ""}>${escapeHtml(t.name)}</option>`
         )
         .join("");
+      const cardCount = item.flashcards.length;
 
-      app.innerHTML = `
-        <div class="card">
-          ${item.flaggedForReview ? '<div class="badge">⚠ Uncertain — your call</div>' : ""}
-          ${item.suggestedTopic ? `<p class="topic">Suggested topic: ${escapeHtml(item.suggestedTopic)}</p>` : ""}
-          <p class="summary">${escapeHtml(item.summary || "(no summary — take a look at the extracted text)")}</p>
-          <details>
-            <summary>View extracted text</summary>
-            <div class="extracted-text">${escapeHtml(item.extractedText || "(nothing extracted)")}</div>
-          </details>
-          <div class="tags">${item.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>
-          <div class="flashcard-count">
-            ${item.flashcards.length} flashcard${item.flashcards.length === 1 ? "" : "s"}
-            ${item.hasDiagram ? " · contains a diagram" : ""}
-          </div>
-
-          <div class="actions">
-            <div class="row">
-              <input type="text" id="keep-topic" placeholder="New topic (optional)" value="${escapeHtml(item.suggestedTopic || "")}" />
-              <button class="btn-keep" onclick="keep('${item.jobId}')">Keep</button>
+      setStage(`
+        <div class="deck reveal" data-depth="${Math.min(queue.length, 3)}" data-job="${escapeHtml(item.jobId)}">
+          <div class="shell"><article class="core">
+            <div class="card__top">
+              ${item.flaggedForReview ? '<span class="eyebrow eyebrow--warn">Uncertain — your call</span>' : ""}
+              <span class="counter">01 / ${String(queue.length).padStart(2, "0")}</span>
             </div>
+
             ${
-              item.suggestedExistingTopic
-                ? `<p class="topic" style="margin-top:2px">Looks like it might belong in <strong>${escapeHtml(
-                    item.suggestedExistingTopic.topicName
-                  )}</strong> (${Math.round(item.suggestedExistingTopic.confidence * 100)}% tag match) — pre-selected below, but nothing merges until you tap Merge.</p>`
+              item.suggestedTopic
+                ? `<p class="topic-hint">Suggested topic · <strong>${escapeHtml(item.suggestedTopic)}</strong></p>`
                 : ""
             }
-            <div class="row">
-              <select id="merge-topic" ${topics.length === 0 ? "disabled" : ""}>
-                ${topics.length === 0 ? '<option value="">No topics yet</option>' : topicOptions}
-              </select>
-              <button class="btn-merge" ${topics.length === 0 ? "disabled" : ""} onclick="merge('${item.jobId}')">Merge</button>
+            <p class="summary ${item.summary ? "" : "summary--empty"}">${escapeHtml(
+              item.summary || "No summary — take a look at the extracted text."
+            )}</p>
+
+            ${
+              item.tags.length || item.hasDiagram
+                ? `<div class="tags">
+                    ${item.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("")}
+                    ${item.hasDiagram ? '<span class="tag tag--plain">Contains a diagram</span>' : ""}
+                  </div>`
+                : ""
+            }
+
+            <div class="folds">
+              <details>
+                <summary>Extracted text ${icon("chevron")}</summary>
+                <div class="fold"><pre class="extracted">${escapeHtml(item.extractedText || "(nothing extracted)")}</pre></div>
+              </details>
+              <details>
+                <summary>${cardCount} flashcard${cardCount === 1 ? "" : "s"} ${icon("chevron")}</summary>
+                <div class="fold">
+                  ${
+                    cardCount
+                      ? `<ul class="cards">${item.flashcards
+                          .map(
+                            (c) =>
+                              `<li><p class="q">${escapeHtml(c.question)}</p><p class="a">${escapeHtml(c.answer)}</p></li>`
+                          )
+                          .join("")}</ul>`
+                      : '<p class="topic-hint" style="margin:0">Nothing here was worth quizzing on.</p>'
+                  }
+                </div>
+              </details>
             </div>
-            <button class="btn-discard" onclick="discard('${item.jobId}')">Discard</button>
-            <div class="flag-row">
-              <span class="flag-label">Something wrong here?</span>
-              <button class="btn-flag" onclick="flag('${item.jobId}', 'detection')">🚩 Detection</button>
-              <button class="btn-flag" onclick="flag('${item.jobId}', 'summary')">🚩 Summary</button>
-              <button class="btn-flag" onclick="flag('${item.jobId}', 'flashcard')">🚩 Flashcard</button>
+
+            <div class="actions">
+              <div class="row">
+                <div class="field">
+                  <input type="text" id="keep-topic" aria-label="Topic to file this note under (optional)"
+                    placeholder="File under a topic (optional)" value="${escapeHtml(item.suggestedTopic || "")}" />
+                </div>
+                <button class="btn btn--primary" type="button" data-action="keep">
+                  Keep <span class="btn__icon">${icon("arrow")}</span>
+                </button>
+              </div>
+
+              ${
+                suggested
+                  ? `<p class="suggestion">Looks like it belongs in <strong>${escapeHtml(suggested.topicName)}</strong>
+                      (${Math.round(suggested.confidence * 100)}% tag match). It’s pre-selected below — nothing merges until you choose Merge.</p>`
+                  : ""
+              }
+              <div class="row">
+                <div class="field">
+                  <select id="merge-topic" aria-label="Existing topic to merge into" ${hasTopics ? "" : "disabled"}>
+                    ${hasTopics ? topicOptions : '<option value="">No topics yet</option>'}
+                  </select>
+                  ${icon("chevron")}
+                </div>
+                <button class="btn btn--quiet" type="button" data-action="merge" ${hasTopics ? "" : "disabled"}>
+                  Merge <span class="btn__icon">${icon("merge")}</span>
+                </button>
+              </div>
+
+              <div class="card__foot">
+                <button class="btn btn--bare" type="button" data-action="discard">${icon("x")}<span>Discard</span></button>
+                <div class="flags">
+                  <span class="flags__label">Flag</span>
+                  <button class="btn btn--bare" type="button" data-action="flag" data-kind="detection">${icon("flag")}Detection</button>
+                  <button class="btn btn--bare" type="button" data-action="flag" data-kind="summary">${icon("flag")}Summary</button>
+                  <button class="btn btn--bare" type="button" data-action="flag" data-kind="flashcard">${icon("flag")}Flashcard</button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="progress">${queue.length} left to review</div>
-      `;
+          </article></div>
+        </div>`);
     }
 
-    // Escapes quotes too, not just < > & — several of these values land
-    // inside attributes (value="…"), and the suggested topic is derived
-    // from an uploaded filename, which can contain a double quote.
-    function escapeHtml(str) {
-      return String(str).replace(
-        /[&<>"']/g,
-        (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]
-      );
-    }
-
-    async function keep(jobId) {
-      const newTopicName = document.getElementById("keep-topic").value.trim();
-      await post(`/review/${jobId}/keep`, { newTopicName });
-      await load();
-    }
-
-    async function merge(jobId) {
-      const topicId = document.getElementById("merge-topic").value;
-      if (!topicId) return;
-      await post(`/review/${jobId}/merge`, { topicId });
-      await load();
-    }
-
-    async function discard(jobId) {
-      if (!confirm("Discard this permanently? This can't be undone.")) return;
-      await post(`/review/${jobId}/discard`, {});
-      await load();
-    }
-
-    async function flag(jobId, kind) {
-      const reason = prompt(`What's wrong with the ${kind}? (optional)`);
-      if (reason === null) return; // cancelled
-      const ok = await post("/feedback", { targetType: "job", targetId: jobId, kind, reason: reason || null });
-      if (ok) alert("Thanks — flagged for the team to look at.");
+    function toast(message, tone = "ok") {
+      const el = document.createElement("div");
+      el.className = `toast${tone === "error" ? " toast--error" : ""}`;
+      el.innerHTML = `${icon(tone === "error" ? "alert" : "check")}<span>${escapeHtml(message)}</span>`;
+      toasts.append(el);
+      setTimeout(() => {
+        el.classList.add("is-out");
+        el.addEventListener("animationend", () => el.remove(), { once: true });
+        setTimeout(() => el.remove(), 800); // if the animation never runs
+      }, 4200);
     }
 
     // Resolves to whether the action succeeded. Never rejects: a network
@@ -313,13 +1034,129 @@
         });
         if (res.ok) return true;
         const detail = await res.json().catch(() => ({}));
-        alert(`Action failed: ${detail.error || res.status}`);
+        toast(`That didn’t go through: ${detail.error || res.status}`, "error");
       } catch (err) {
-        alert(`Action failed: couldn't reach the API at ${apiBase()} (${err.message})`);
+        toast(`Couldn’t reach the API at ${apiBase()} (${err.message})`, "error");
       }
       return false;
     }
 
+    function setBusy(next) {
+      busy = next;
+      for (const el of app.querySelectorAll("button, input, select")) {
+        if (next) {
+          el.dataset.wasDisabled = el.disabled ? "1" : "";
+          el.disabled = true;
+        } else if (el.dataset.wasDisabled !== undefined) {
+          el.disabled = el.dataset.wasDisabled === "1";
+          delete el.dataset.wasDisabled;
+        }
+      }
+    }
+
+    // Plays the outgoing card's exit, resolving when it finishes (or after
+    // a short timeout, so a skipped animation can't stall the queue).
+    function leave(kind) {
+      const deck = app.querySelector(".deck");
+      if (!deck) return Promise.resolve();
+      return new Promise((resolve) => {
+        const done = () => resolve();
+        deck.addEventListener("animationend", done, { once: true });
+        setTimeout(done, 700);
+        deck.classList.add("is-leaving", `is-leaving--${kind}`);
+      });
+    }
+
+    async function decide(kind, body) {
+      if (busy) return;
+      const jobId = queue[0]?.jobId;
+      if (!jobId) return;
+
+      setBusy(true);
+      const ok = await post(`/review/${encodeURIComponent(jobId)}/${kind}`, body);
+      if (!ok) {
+        setBusy(false);
+        return;
+      }
+      await leave(kind);
+      busy = false;
+      await load({ quiet: true });
+    }
+
+    function disarmDiscard(button) {
+      clearTimeout(disarmTimer);
+      button.classList.remove("is-armed");
+      button.querySelector("span").textContent = "Discard";
+    }
+
+    // Discarding deletes the image for good, so it takes two presses: the
+    // first arms the button, the second (within a few seconds) commits.
+    function discard(button) {
+      if (!button.classList.contains("is-armed")) {
+        button.classList.add("is-armed");
+        button.querySelector("span").textContent = "Press again — this can’t be undone";
+        disarmTimer = setTimeout(() => disarmDiscard(button), DISCARD_ARM_MS);
+        return;
+      }
+      clearTimeout(disarmTimer);
+      decide("discard", {});
+    }
+
+    function openFlag(kind) {
+      const jobId = queue[0]?.jobId;
+      if (!jobId) return;
+      flagTarget = { jobId, kind };
+      flagTitle.textContent = `What’s off with the ${kind}?`;
+      flagReason.value = "";
+      flagDialog.showModal();
+      flagReason.focus();
+    }
+
+    flagForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!flagTarget) return;
+      const { jobId, kind } = flagTarget;
+      const reason = flagReason.value.trim() || null;
+      flagDialog.close();
+      const ok = await post("/feedback", { targetType: "job", targetId: jobId, kind, reason });
+      if (ok) toast("Flagged — the team will take a look.");
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-action]");
+      if (!target) return;
+
+      switch (target.dataset.action) {
+        case "reload":
+          load();
+          break;
+        case "keep":
+          decide("keep", { newTopicName: document.getElementById("keep-topic").value.trim() });
+          break;
+        case "merge": {
+          const topicId = document.getElementById("merge-topic").value;
+          if (topicId) decide("merge", { topicId });
+          break;
+        }
+        case "discard":
+          discard(target);
+          break;
+        case "flag":
+          openFlag(target.dataset.kind);
+          break;
+        case "flag-cancel":
+          flagDialog.close();
+          break;
+      }
+    });
+
+    app.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && event.target.id === "keep-topic") {
+        decide("keep", { newTopicName: event.target.value.trim() });
+      }
+    });
+
+    reveal(document);
     load();
   </script>
 </body>

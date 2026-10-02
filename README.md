@@ -169,13 +169,33 @@ from a `{ uri }` object the way React Native can.
   text). It previously claimed to follow the system theme, which put
   light status-bar text on the light background in dark mode.
 - Visual pass: a generated app icon/logo (rounded loop-arrow over a
-  notebook, `client/assets/icon.png`), a "Test Connection" button next to
-  the server-address field, and `Animated`-based transitions (row
-  fade-in, smooth progress bars, a button press effect, a bouncing
-  success checkmark) — deliberately using React Native's built-in
-  `Animated` API rather than adding an animation library, and emoji
-  rather than an icon library, given how much friction new dependencies
-  have already caused in this client.
+  notebook, `client/assets/icon.png`), a "Test" button next to the
+  server-address field, and `Animated`-based transitions — deliberately
+  React Native's built-in `Animated` API rather than an animation library.
+
+### Design language (shared with the review UI)
+
+The app and `review-ui/index.html` use one visual system: warm paper
+(`#fbf8f1`), espresso ink, sage and clay accents; Instrument Serif for
+display type and Plus Jakarta Sans for everything else.
+
+- **Fonts are real dependencies** (`expo-font` plus two
+  `@expo-google-fonts/*` packages), imported per weight so only the five
+  cuts in use are bundled. Each weight is addressed by its own family
+  name — never `fontWeight` on top of a custom font, which makes Android
+  synthesise a fake bold. The app waits on a blank paper screen while
+  they load, and carries on with system fonts if loading fails.
+- **No icon library.** The plus, tick and ring motifs are drawn from
+  plain `View`s, so there's nothing to keep in sync with the Expo SDK.
+- **Cards are "double bezel"** — an outer tray and an inner plate on
+  concentric radii (the `Bezel` component) — and borders are the ink
+  colour at low alpha rather than grey lines.
+- **Motion is transform/opacity only**, on one easing curve
+  (`cubic-bezier(0.32, 0.72, 0, 1)`). The upload progress bar is scaled
+  from its left edge rather than animating `width`, so it runs on the
+  native driver.
+- The whole screen is one `FlatList` (header, server card and queue
+  scroll together), so nothing is cut off on a short phone.
 
 ## Lint & test
 
@@ -297,9 +317,14 @@ bridged only at the point of a user's keep/merge/discard decision.
 
 `review-ui/index.html` is a single self-contained static page (no build
 step, no framework) that drives all of the above: one card at a time, an
-editable topic field for "keep", a dropdown of existing topics for
-"merge", a confirm-then-discard button, and a clear "you're all caught
-up" empty state with a manual refresh rather than a dead end. It's
+editable topic field for "keep" (Enter works), a dropdown of existing
+topics for "merge", and a clear "all caught up" empty state with a manual
+refresh rather than a dead end. Discard takes two presses — the first
+arms the button for a few seconds — since it deletes the image for good.
+The card also lists the generated flashcards, not just their count, and
+errors show as a toast rather than a browser alert. Its only external
+request is the Google Fonts stylesheet; offline it falls back to system
+serif/sans and still works. Below 768px it collapses to one column. It's
 deliberately framework-agnostic — the "Build manual import flow (client)"
 issue is what decides whether the real client becomes Expo/React Native,
 and this doesn't presume that answer.
@@ -308,7 +333,7 @@ To run it: start the server (`npm run dev:server`), then either open
 `review-ui/index.html` directly in a browser, or serve it statically
 (e.g. `npx serve review-ui`) if your browser blocks `file://` → `http://`
 fetches. It defaults to `http://localhost:4000` for the API — editable
-in the top-right field, persisted in `localStorage`. The server enables
+in the field in the top bar, persisted in `localStorage`. The server enables
 permissive CORS for this (dev-only — see the comment in `app.ts`).
 
 ### Spaced repetition (`server/src/scheduling/sm2.ts`, `server/src/db/flashcardsRepository.ts`)
@@ -392,8 +417,8 @@ unauthenticated, same as before.
   a persisted, queryable, resolvable table, not a console log like
   `UsageLog`.
 - **Actually in-app, not just an API**: `review-ui/index.html` has a
-  "🚩 Detection / Summary / Flashcard" row on every review card, prompting
-  for an optional reason and posting to `/feedback` — flagging doesn't
+  "Flag · Detection / Summary / Flashcard" row on every review card, which
+  opens a dialog for an optional reason and posts to `/feedback` — flagging doesn't
   remove the card from the queue, since it's orthogonal to keep/merge/
   discard.
 
