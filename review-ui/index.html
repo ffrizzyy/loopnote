@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Loopnote — Review</title>
+<style>
+  :root {
+    /* Light only: every colour below is a light-theme value, and
+       advertising "dark" made the browser render dark form controls on
+       the white card for anyone with a dark OS theme. */
+    color-scheme: light;
+    --bg: #f5f5f4;
+    --card-bg: #ffffff;
+    --text: #1c1917;
+    --muted: #78716c;
+    --accent: #4f46e5;
+    --danger: #b91c1c;
+    --warn-bg: #fef9c3;
+    --warn-text: #854d0e;
+    --border: #e7e5e4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 64px;
+  }
+  header {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 1.1rem; margin: 0; }
+  .config {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .config input {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 150px;
+  }
+  main { width: 100%; max-width: 480px; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    margin-bottom: 10px;
+  }
+  .topic { font-size: 0.8rem; color: var(--muted); margin: 0 0 4px; }
+  .summary { font-size: 1rem; margin: 0 0 12px; line-height: 1.4; }
+  details { margin-bottom: 12px; }
+  summary { cursor: pointer; font-size: 0.85rem; color: var(--accent); }
+  .extracted-text {
+    white-space: pre-wrap;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-top: 8px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tag {
+    font-size: 0.7rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 8px;
+    color: var(--muted);
+  }
+  .flashcard-count { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+  .actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .row { display: flex; gap: 8px; }
+  input[type="text"], select {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  button {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-keep { background: var(--accent); color: white; }
+  .btn-merge { background: #eef2ff; color: var(--accent); }
+  .btn-discard { background: transparent; color: var(--danger); border: 1px solid #fecaca; }
+  .flag-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .flag-label { font-size: 0.7rem; color: var(--muted); margin-right: 2px; }
+  .btn-flag {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 4px 8px;
+  }
+  .btn-flag:hover { color: var(--danger); border-color: #fecaca; }
+  .btn-refresh { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+  .empty, .loading, .error {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--muted);
+  }
+  .empty .big { font-size: 2rem; margin-bottom: 8px; }
+  .progress { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 12px; }
+  .error { color: var(--danger); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>📥 Review</h1>
+    <div class="config">
+      API:
+      <input id="api-base" type="text" />
+    </div>
+  </header>
+  <main id="app">
+    <div class="loading">Loading…</div>
+  </main>
+
+  <script>
+    const API_KEY = "loopnote-review-api-base";
+    const apiBaseInput = document.getElementById("api-base");
+    apiBaseInput.value = localStorage.getItem(API_KEY) || "http://localhost:4000";
+    apiBaseInput.addEventListener("change", () => {
+      localStorage.setItem(API_KEY, apiBaseInput.value.trim());
+      load();
+    });
+
+    function apiBase() {
+      return apiBaseInput.value.trim().replace(/\/$/, "");
+    }
+
+    let queue = [];
+    let topics = [];
+    const app = document.getElementById("app");
+
+    async function load() {
+      app.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const [pendingRes, topicsRes] = await Promise.all([
+          fetch(`${apiBase()}/review/pending`),
+          fetch(`${apiBase()}/topics`),
+        ]);
+        if (!pendingRes.ok) throw new Error(`GET /review/pending failed (${pendingRes.status})`);
+        const pendingBody = await pendingRes.json();
+        const topicsBody = topicsRes.ok ? await topicsRes.json() : { topics: [] };
+        queue = pendingBody.items;
+        topics = topicsBody.topics;
+        render();
+      } catch (err) {
+        app.innerHTML = `<div class="error">Couldn't reach the API at ${escapeHtml(apiBase())}.<br>${escapeHtml(err.message)}<br><br>
+          <button class="btn-refresh" onclick="load()">Try again</button></div>`;
+      }
+    }
+
+    function render() {
+      if (queue.length === 0) {
+        app.innerHTML = `
+          <div class="empty">
+            <div class="big">✅</div>
+            You're all caught up — nothing waiting for review.<br>
+            Import a few photos, then come back.
+            <div style="margin-top:16px">
+              <button class="btn-refresh" onclick="load()">Check again</button>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const item = queue[0];
+      const suggestedId = item.suggestedExistingTopic ? item.suggestedExistingTopic.topicId : null;
+      const topicOptions = topics
+        .map(
+          (t) =>
+            `<option value="${escapeHtml(t.id)}" ${t.id === suggestedId ? "selected" : ""}>${escapeHtml(t.name)}</option>`
+        )
+        .join("");
+
+      app.innerHTML = `
+        <div class="card">
+          ${item.flaggedForReview ? '<div class="badge">⚠ Uncertain — your call</div>' : ""}
+          ${item.suggestedTopic ? `<p class="topic">Suggested topic: ${escapeHtml(item.suggestedTopic)}</p>` : ""}
+          <p class="summary">${escapeHtml(item.summary || "(no summary — take a look at the extracted text)")}</p>
+          <details>
+            <summary>View extracted text</summary>
+            <div class="extracted-text">${escapeHtml(item.extractedText || "(nothing extracted)")}</div>
+          </details>
+          <div class="tags">${item.tags.map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>
+          <div class="flashcard-count">
+            ${item.flashcards.length} flashcard${item.flashcards.length === 1 ? "" : "s"}
+            ${item.hasDiagram ? " · contains a diagram" : ""}
+          </div>
+
+          <div class="actions">
+            <div class="row">
+              <input type="text" id="keep-topic" placeholder="New topic (optional)" value="${escapeHtml(item.suggestedTopic || "")}" />
+              <button class="btn-keep" onclick="keep('${item.jobId}')">Keep</button>
+            </div>
+            ${
+              item.suggestedExistingTopic
+                ? `<p class="topic" style="margin-top:2px">Looks like it might belong in <strong>${escapeHtml(
+                    item.suggestedExistingTopic.topicName
+                  )}</strong> (${Math.round(item.suggestedExistingTopic.confidence * 100)}% tag match) — pre-selected below, but nothing merges until you tap Merge.</p>`
+                : ""
+            }
+            <div class="row">
+              <select id="merge-topic" ${topics.length === 0 ? "disabled" : ""}>
+                ${topics.length === 0 ? '<option value="">No topics yet</option>' : topicOptions}
+              </select>
+              <button class="btn-merge" ${topics.length === 0 ? "disabled" : ""} onclick="merge('${item.jobId}')">Merge</button>
+            </div>
+            <button class="btn-discard" onclick="discard('${item.jobId}')">Discard</button>
+            <div class="flag-row">
+              <span class="flag-label">Something wrong here?</span>
+              <button class="btn-flag" onclick="flag('${item.jobId}', 'detection')">🚩 Detection</button>
+              <button class="btn-flag" onclick="flag('${item.jobId}', 'summary')">🚩 Summary</button>
+              <button class="btn-flag" onclick="flag('${item.jobId}', 'flashcard')">🚩 Flashcard</button>
+            </div>
+          </div>
+        </div>
+        <div class="progress">${queue.length} left to review</div>
+      `;
+    }
+
+    // Escapes quotes too, not just < > & — several of these values land
+    // inside attributes (value="…"), and the suggested topic is derived
+    // from an uploaded filename, which can contain a double quote.
+    function escapeHtml(str) {
+      return String(str).replace(
+        /[&<>"']/g,
+        (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]
+      );
+    }
+
+    async function keep(jobId) {
+      const newTopicName = document.getElementById("keep-topic").value.trim();
+      await post(`/review/${jobId}/keep`, { newTopicName });
+      await load();
+    }
+
+    async function merge(jobId) {
+      const topicId = document.getElementById("merge-topic").value;
+      if (!topicId) return;
+      await post(`/review/${jobId}/merge`, { topicId });
+      await load();
+    }
+
+    async function discard(jobId) {
+      if (!confirm("Discard this permanently? This can't be undone.")) return;
+      await post(`/review/${jobId}/discard`, {});
+      await load();
+    }
+
+    async function flag(jobId, kind) {
+      const reason = prompt(`What's wrong with the ${kind}? (optional)`);
+      if (reason === null) return; // cancelled
+      const ok = await post("/feedback", { targetType: "job", targetId: jobId, kind, reason: reason || null });
+      if (ok) alert("Thanks — flagged for the team to look at.");
+    }
+
+    // Resolves to whether the action succeeded. Never rejects: a network
+    // failure is reported the same way as an error response, rather than
+    // surfacing as an unhandled rejection the user never sees.
+    async function post(path, body) {
+      try {
+        const res = await fetch(`${apiBase()}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) return true;
+        const detail = await res.json().catch(() => ({}));
+        alert(`Action failed: ${detail.error || res.status}`);
+      } catch (err) {
+        alert(`Action failed: couldn't reach the API at ${apiBase()} (${err.message})`);
+      }
+      return false;
+    }
+
+    load();
+  </script>
+</body>
+</html>

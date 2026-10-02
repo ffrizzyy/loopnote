@@ -1,0 +1,30 @@
+node_modules/
+dist/
+build/
+.expo/
+*.log
+coverage/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# db — SQLite in WAL mode writes -wal and -shm files next to the database
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# database + uploaded images, wherever the relative paths in .env resolve
+# (server/ when started through the npm workspace script, the repo root
+# when started from there directly)
+/server/data/
+/data/

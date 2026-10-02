@@ -1,0 +1,25 @@
+{
+  "name": "loopnote",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Loopnote monorepo — client (mobile/web capture app) and server (ingestion API + AI pipeline).",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run start --workspace=client"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3"
+  },
+  "engines": {
+    "node": ">=20.12.0"
+  }
+}
