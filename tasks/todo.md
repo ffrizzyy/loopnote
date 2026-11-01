@@ -172,25 +172,36 @@ Playwright with one smoke test. This is the harness every later task verifies
 against, so it has to be right before components and contracts start landing.
 
 **Acceptance criteria:**
-- [ ] `pnpm test` runs Vitest once across all packages. `pnpm test:watch` works.
-- [ ] Coverage thresholds are enforced at 80 percent lines on `packages/*/src` and
-      90 percent on auth, billing, and scheduler paths, which do not exist yet. The
-      config reserves the higher paths without failing.
-- [ ] `pnpm test -- --coverage` fails when a package drops below its threshold.
-- [ ] Playwright config has a chromium project, `baseURL` from env, and one smoke
-      spec that loads the harness page.
-- [ ] `pnpm e2e` passes against a locally built app.
+- [x] `pnpm test` runs Vitest once across all packages. `pnpm test:watch` works.
+      One root config with `{apps,packages}/**/*.test.ts` replaces per-package
+      projects: Vitest 5 removed workspace files in favour of `projects`, and a
+      single run gives one report instead of one process per package.
+- [x] Coverage thresholds are enforced at 80 percent lines and statements, 80
+      percent functions, 70 percent branches. `**/src/**/auth/**`,
+      `**/src/**/billing/**`, and `**/src/**/scheduler/**` carry a reserved 90
+      percent bar. Those globs match nothing today and the run still passes.
+- [x] `pnpm test --coverage` and `pnpm test -- --coverage` both fail when a package
+      drops below its threshold.
+- [x] Playwright config has a chromium project, `baseURL` from `E2E_BASE_URL` with a
+      loopback default, and one smoke spec that loads the harness page.
+- [x] `pnpm e2e` passes against a locally built app.
 
 **Verification:**
-- [ ] `pnpm test -- --coverage` passes.
-- [ ] Delete one assertion to force a threshold drop, confirm the command fails, revert.
-- [ ] `pnpm e2e` passes.
+- [x] `pnpm test --coverage` passes. `shutdown.ts` measures 92.59 percent
+      statements, 75 percent branches, 100 percent lines.
+- [x] Threshold proof: an untested source file dropped the run to 78.12 percent
+      statements and 56.25 percent branches, and the command exited 1 naming both
+      failed thresholds. The probe was removed. Deleting one test case was tried
+      first and did not move the numbers, because the remaining tests already
+      covered those lines, so coverage was dropped with an uncovered file instead.
+- [x] `pnpm e2e` passes, 2 tests: the server-rendered h1, and no console errors.
 
 **Depends on:** F-03, F-04
 
 **Files likely touched:**
-- `vitest.config.ts`, `playwright.config.ts`, `e2e/smoke.spec.ts`,
-  `tests/setup.ts`
+- `vitest.config.ts`, `playwright.config.ts`, `e2e/smoke.spec.ts`, `package.json`
+- No `tests/setup.ts` yet: there is no DOM test to set up. It arrives with the
+  component tests in F-13.
 
 **Size:** M
 

@@ -30,3 +30,19 @@ would mean dropping the App Router or the polyfill chunk.
 Proposal, pending approval: raise the harness-route budget to 200 kB gzipped and keep
 `SPEC.md` section 1.4's separate landing-page LCP, INP, and CLS budgets unchanged.
 Recorded here rather than edited into the spec, because the spec threshold is approved.
+
+### Test harness
+
+F-05, 2026-11-01. Vitest 5.0.5 with v8 coverage, Playwright 1.64.1 on Chrome for
+Testing 156.
+
+- Unit tests: 4 in `apps/worker`, all passing.
+- `shutdown.ts`: 92.59 percent statements (25/27), 75 percent branches (9/12), 100
+  percent functions and lines.
+- Threshold gate: an untested source file pulled the run to 78.12 percent statements
+  and 56.25 percent branches. The command exited 1 and named both failed thresholds.
+  Removing a test case was tried first and changed nothing, because the other tests
+  already covered the same lines.
+- End to end: 2 tests against a production build on port 3100, both passing. The
+  server-rendered h1 is asserted by role, and the console error check collects every
+  error message from load to network idle.
