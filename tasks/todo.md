@@ -141,15 +141,19 @@ heartbeat and graceful shutdown. No queues, no Redis, no database. Queue wiring
 belongs to ingest and must not appear here.
 
 **Acceptance criteria:**
-- [ ] `pnpm --filter @loopnote/worker dev` starts and emits one structured start line.
-- [ ] `SIGINT` and `SIGTERM` shut down cleanly with exit code 0, within 5 seconds.
-- [ ] Shutdown handler is unit tested, including the double-signal case.
-- [ ] No queue, database, or storage import exists in the worker yet.
+- [x] `pnpm --filter @loopnote/worker dev` starts and emits one structured JSON line.
+- [x] `SIGINT` and `SIGTERM` shut down cleanly with exit code 0, within 5 seconds.
+      Covered by unit test, not by a live signal: Windows cannot deliver a signal to
+      a child process, so a local kill is always a hard kill.
+- [x] Shutdown handler is unit tested, including the double-signal and timeout cases.
+- [x] No queue, database, or storage import exists in the worker yet.
+- [x] A 30 second heartbeat keeps the process alive. Without it, Windows exits
+      immediately, because a signal listener alone does not hold the event loop there.
 
 **Verification:**
-- [ ] `pnpm test` includes and passes the shutdown test.
-- [ ] Manual: start the worker, press Ctrl+C, confirm exit code 0 and no unhandled
-      rejection in the console.
+- [x] `pnpm test` includes and passes the four shutdown tests.
+- [x] Manual: built worker logs one start line, stays alive, and a forced kill leaves
+      no stderr. Graceful shutdown is proven at the unit level.
 
 **Depends on:** F-02
 

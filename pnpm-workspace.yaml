@@ -5,4 +5,8 @@ packages:
 # pnpm 12 fails the install when a dependency wants to run a build script and is
 # not listed here. Each entry must be justified in the pull request that adds it.
 allowBuilds:
+  # Native resolver used by eslint-plugin-import-x.
   unrs-resolver: true
+  # Esbuild links its platform binary on install. Required by tsx, which runs the
+  # worker in development and every check script.
+  esbuild: true
