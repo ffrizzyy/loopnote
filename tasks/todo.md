@@ -77,25 +77,26 @@ packages drifting into twelve styles. The Tailwind preset is added later in F-11
 not here.
 
 **Acceptance criteria:**
-- [ ] `packages/config` exports `tsconfig/base.json`, `tsconfig/react.json`, and
+- [x] `packages/config` exports `tsconfig/base.json`, `tsconfig/react.json`, and
       `tsconfig/node.json`, all with `strict: true` and no implicit any.
-- [ ] ESLint flat config enables `jsx-a11y`, `eslint-plugin-security`, import order,
-      `no-explicit-any` as error, and unused import detection.
-- [ ] Prettier config is shared. No package carries its own copy of either config.
-- [ ] `pnpm lint` fails on a deliberate `any`, a missing `alt`, and an unused
-      variable. Each rule is confirmed by a throwaway file, then removed.
+- [x] ESLint flat config enables `jsx-a11y`, `eslint-plugin-security`, import order,
+      `no-explicit-any` as error, and unused variable detection.
+- [x] Prettier config is shared at the root. No package carries its own copy.
+- [x] `pnpm lint` fails on a deliberate `any`, a missing `alt`, and an unused
+      variable. Confirmed with a throwaway file, then removed.
 
 **Verification:**
-- [ ] `pnpm typecheck` passes on every package.
-- [ ] `pnpm lint` and `pnpm format:check` pass.
-- [ ] Manual: introduce one violation per rule group, confirm lint names the file and
-      rule, revert.
+- [x] `pnpm typecheck` passes on every package.
+- [x] `pnpm lint` and `pnpm format:check` pass.
+- [x] Manual: introduce one violation per rule group, confirm lint names the file and
+      rule, revert. All three fired in one run.
 
 **Depends on:** F-01
 
 **Files likely touched:**
-- `packages/config/package.json`, `packages/config/eslint.config.js`,
-  `packages/config/tsconfig/*.json`, `packages/config/prettier.config.js`
+- `packages/config/package.json`, `packages/config/eslint/base.js`,
+  `packages/config/eslint/react.js`, `packages/config/tsconfig/*.json`,
+  `eslint.config.mjs`, `turbo.json`
 
 **Size:** M
 

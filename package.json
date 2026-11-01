@@ -10,14 +10,17 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "turbo run test",
     "verify": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test"
   },
   "devDependencies": {
+    "@loopnote/config": "workspace:*",
     "@types/node": "^24.10.1",
+    "eslint": "9.39.5",
     "prettier": "3.9.10",
     "turbo": "2.11.10",
     "typescript": "6.0.3"
