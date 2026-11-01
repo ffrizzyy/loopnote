@@ -1,0 +1,17 @@
+# Generated or vendored
+pnpm-lock.yaml
+node_modules
+.next
+.turbo
+dist
+coverage
+storybook-static
+playwright-report
+test-results
+
+# Prose is hand-wrapped on purpose. Prettier reflows tables and lists and buries a
+# real change under a hundred cosmetic ones.
+*.md
+
+# The palette comparison is a hand-authored decision record, not a page we ship.
+design/*.html

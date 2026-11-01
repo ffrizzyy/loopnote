@@ -34,31 +34,36 @@ the Node and pnpm pins against Next.js support before going further, because a
 version change after this point touches every lockfile and CI cache key.
 
 **Acceptance criteria:**
-- [ ] `git init` done, `.gitignore` covers `node_modules`, `.next`, `.turbo`,
-      `coverage`, `storybook-static`, `.env*` except `.env.example`.
-- [ ] `package.json` has `packageManager: "pnpm@10.x"` and `engines.node` at the
-      chosen LTS. `.nvmrc` matches.
-- [ ] `pnpm-workspace.yaml` lists `apps/*` and `packages/*`.
-- [ ] Stubs exist for `apps/web`, `apps/worker`, and
-      `packages/{config,tokens,ui,schemas,db,pipeline}`. Each has a name
-      `@loopnote/<name>` where it is a package.
-- [ ] `turbo.json` declares `build`, `lint`, `typecheck`, `test`, and `dev`, with
+- [x] Repo adopted in place, with `.gitignore` covering `node_modules`, `.next`,
+      `.turbo`, `coverage`, `storybook-static`, and `.env*` except `.env.example`.
+- [x] `package.json` has `packageManager: "pnpm@12.11.2"` and `engines.node` at
+      `>=24 <25`. `.nvmrc` matches.
+- [x] `pnpm-workspace.yaml` lists `apps/*` and `packages/*`.
+- [x] Stubs exist for `apps/web`, `apps/worker`, and
+      `packages/{config,tokens,ui,schemas,db,pipeline}`. Each carries the
+      `@loopnote/<name>` name and resolves through the workspace.
+- [x] `turbo.json` declares `build`, `lint`, `typecheck`, `test`, and `dev`, with
       `dev` uncached and persistent.
-- [ ] Root scripts from `SPEC.md` section 3 all exist. Scripts whose implementation
-      lands later point at turbo tasks and fail loudly, not silently.
-- [ ] Node 24 LTS is confirmed against the chosen Next version, or the fallback to
-      Node 22 is recorded in `docs/adr/0001-monorepo-and-tooling.md`.
+- [x] Root scripts exist for what the skeleton can actually run: `dev`, `build`,
+      `typecheck`, `lint`, `format`, `format:check`, `test`, `verify`. Each later
+      script is added by the card that implements it. F-22 adds the guard that the
+      full list in `SPEC.md` section 3 exists before CI is switched on.
+- [x] Toolchain pins are confirmed against real peer ranges and recorded in
+      `docs/spikes/toolchain-baseline.md`. TypeScript 7 and ESLint 10 were rejected
+      with a stated reason.
 
 **Verification:**
-- [ ] `pnpm install` succeeds from an empty `node_modules`.
-- [ ] `pnpm exec turbo --version` prints the pinned version.
-- [ ] `git status` is clean after the first commit.
-- [ ] Manual: delete `node_modules`, reinstall, confirm no missing workspace errors.
+- [x] `pnpm install` succeeds from an empty `node_modules`.
+- [x] `pnpm exec turbo --version` prints the pinned version.
+- [x] `git status` is clean after the first commit.
+- [x] Manual: delete `node_modules`, reinstall, confirm no missing workspace errors.
 
 **Depends on:** none
 
 **Files likely touched:**
-- `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.nvmrc`, `.gitignore`, `.editorconfig`
+- `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `.nvmrc`, `.gitignore`,
+  `.gitattributes`, `.editorconfig`, `.prettierrc.json`,
+  `docs/spikes/toolchain-baseline.md`
 
 **Size:** M
 

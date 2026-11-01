@@ -32,8 +32,10 @@ fail when it should.
 
 Locked decisions from `SPEC.md` are not reopened here. This plan adds:
 
-1. Node current Active LTS (24 at time of writing), pnpm 10, pinned in `package.json`,
-   `.nvmrc`, and `engines`. Confirm against Next.js support during F-01.
+1. Node 24.21.0 LTS and pnpm 12.11.2, pinned in `package.json`, `.nvmrc`, and
+   `engines`. Confirmed against Next.js 16 support at F-01. TypeScript is pinned to
+   6.0.3 and ESLint to 9.39.x for the two reasons in
+   `docs/spikes/toolchain-baseline.md`.
 2. Check scripts (`env`, `i18n`, `contrast`) are TypeScript run through `tsx`, not
    shell, so they behave the same on Windows and CI.
 3. Storybook uses the current Next.js framework, with the a11y addon and test-runner.

@@ -1,0 +1,9 @@
+# Normalize line endings. Windows must not commit CRLF into a pnpm repo.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
