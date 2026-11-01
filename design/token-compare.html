@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loopnote: Rose vs Coral</title>
+<style>
+  :root{
+    --page:#0d0d10; --page-text:#f2f2f4; --page-muted:#a1a1aa; --page-border:#2a2a31;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--page-text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1240px;margin:0 auto;padding:40px 20px 96px}
+  header.top h1{font-size:26px;line-height:1.2;margin:0 0 10px;letter-spacing:-.02em}
+  header.top p{color:var(--page-muted);line-height:1.65;max-width:80ch;margin:0 0 10px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a94;margin-bottom:14px}
+  .kicker i{width:6px;height:6px;border-radius:50%;background:#f0707f;display:block}
+  .rule{height:1px;background:var(--page-border);margin:28px 0 8px}
+  .rowlabel{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a94;margin:18px 0 12px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:16px}
+  @media(max-width:980px){.row{grid-template-columns:1fr}}
+  .panel{border:1px solid var(--page-border);border-radius:24px;overflow:hidden;background:#141418}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--page-border)}
+  .panel-head h2{font-size:12px;margin:0;letter-spacing:.08em;text-transform:uppercase;color:#e4e4e7;font-weight:600}
+  .panel-head span{font-size:11px;color:#8a8a94;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .mock{background:var(--bg);color:var(--text);padding:22px}
+  .mock-nav{display:flex;align-items:center;justify-content:space-between;min-height:40px;margin-bottom:24px;gap:12px}
+  .wordmark{font-weight:600;letter-spacing:-.02em;font-size:15px}
+  .navlinks{display:flex;gap:16px;font-size:12px;color:var(--muted)}
+  @media(max-width:1120px){.navlinks{display:none}}
+  .navright{display:flex;align-items:center;gap:10px}
+  .btn{border:0;border-radius:var(--r-md);font:inherit;font-size:13px;font-weight:500;height:36px;padding:0 14px;cursor:pointer;white-space:nowrap}
+  .btn.primary{background:var(--accent);color:var(--on-accent)}
+  .btn.primary:hover{background:var(--accent-hover)}
+  .btn.secondary{background:var(--surface);color:var(--text);border:1px solid var(--border-strong)}
+  .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;align-items:start}
+  @media(max-width:700px){.hero{grid-template-columns:1fr}}
+  .hero h3{font-size:24px;line-height:1.15;letter-spacing:-.02em;margin:0 0 10px;font-weight:600;max-width:18ch}
+  .hero p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 16px;max-width:38ch}
+  .ctas{display:flex;gap:10px;flex-wrap:wrap}
+  .notecard{background:var(--tint);border-radius:var(--r-lg);padding:16px;border:1px solid var(--tint-strong)}
+  .notehead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:var(--r-sm);background:var(--surface);color:var(--muted);font-size:11px;padding:3px 8px;border:1px solid var(--border);white-space:nowrap}
+  .badge{font-size:11px;color:var(--text);background:var(--tint-strong);border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .notecard p{color:var(--text);font-size:12.5px;line-height:1.55;margin:11px 0 12px}
+  .divider{height:1px;background:var(--border);margin:12px 0}
+  .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+  .meta strong{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);font-weight:500}
+  .approw{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
+  @media(max-width:700px){.approw{grid-template-columns:1fr}}
+  .field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px}
+  .field input{width:100%;height:36px;border-radius:var(--r-md);border:1px solid var(--border-strong);background:var(--surface);color:var(--text);padding:0 10px;font:inherit;font-size:12px}
+  .field .help{display:block;font-size:11px;color:var(--subtle);margin-top:6px}
+  .stack{display:flex;gap:8px;align-items:center;flex-wrap:wrap;align-content:flex-start}
+  .status{font-size:11px;display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+  .ok{color:var(--success)} .warn{color:var(--warning)}
+  .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
+  .swatches{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--page-border);flex-wrap:wrap;background:#111114}
+  .sw{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#8a8a94;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .sw i{display:block;width:58px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.08)}
+  .note-foot{padding:13px 18px;border-top:1px solid var(--page-border);color:#8a8a94;font-size:11.5px;line-height:1.6;background:#111114}
+  .note-foot b{color:#d4d4d8;font-weight:500}
+  table.compare{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--page-border);vertical-align:top}
+  th{color:#a1a1aa;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+  .rec{background:#16161a;border:1px solid var(--page-border);border-radius:16px;padding:18px;margin-top:22px;line-height:1.65;color:#c9c9c0;font-size:13px}
+  .rec b{color:#f2f2f4}
+  .rec ol{margin:10px 0 0;padding-left:18px}
+  .rec li{margin:4px 0}
+  .ask{display:inline-block;margin-top:16px;background:#f0707f;color:#1f0a0e;border-radius:10px;padding:9px 14px;font-weight:600;font-size:13px}
+
+  .a{--bg:#F6F6F7;--surface:#FCFCFD;--sunken:#EFEFF1;--border:#E2E2E6;--border-strong:#C9C9D0;--text:#18181B;--muted:#52525B;--subtle:#71717A;--accent:#BE2F48;--accent-hover:#A52640;--on-accent:#FFF5F6;--tint:#FBE4E8;--tint-strong:#F7C9D1;--success:#2F7D4F;--warning:#9A5B00;--danger:#B42318;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px}
+  .a.dark{--bg:#0E0E11;--surface:#16161A;--sunken:#0A0A0D;--border:#2A2A31;--border-strong:#3D3D46;--text:#F2F2F4;--muted:#A1A1AA;--subtle:#8A8A94;--accent:#F0707F;--accent-hover:#F58A97;--on-accent:#1F0A0E;--tint:#2E141A;--tint-strong:#4A1E28;--success:#5FBF86;--warning:#E0A33B;--danger:#F2857B}
+  .b{--bg:#F6F7F9;--surface:#FCFCFD;--sunken:#EEF0F4;--border:#E1E4EA;--border-strong:#C9CED8;--text:#14161F;--muted:#444A5B;--subtle:#626879;--accent:#C9434A;--accent-hover:#B33A41;--on-accent:#FFF9F8;--tint:#FBE9EA;--tint-strong:#F6D6D8;--success:#2B7A50;--warning:#9A6412;--danger:#A8232F;--r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:20px}
+  .b.dark{--bg:#0F1117;--surface:#161923;--sunken:#1D212C;--border:#2A2F3C;--border-strong:#3A4050;--text:#ECEEF3;--muted:#B4B9C8;--subtle:#8C93A6;--accent:#F0787D;--accent-hover:#F58F93;--on-accent:#14161F;--tint:#3A2023;--tint-strong:#4A262A;--success:#5CC48C;--warning:#E0AE57;--danger:#F28B93}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="kicker"><i></i> Loopnote token decision</div>
+    <h1>A: Rose or B: Coral</h1>
+    <p>Same layout, same copy, same components. Only the token family changes: accent, tint, neutrals, and radius. Radii differ because each source document paired its own scale with its palette. Both rows use real Indonesian copy at app density.</p>
+    <p>Contrast figures are approximate and must be confirmed by <span style="font-family:ui-monospace,monospace">pnpm tokens:contrast</span> before shipping. The light coral accent sits close to the 4.5:1 line for body-size links.</p>
+  </header>
+
+  <div class="rule"></div>
+  <div class="rowlabel">Light theme</div>
+  <div class="row">
+    <section class="panel a">
+      <div class="panel-head"><h2>A · Rose</h2><span>light</span></div>
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="wordmark">Loopnote</div>
+          <div class="navlinks"><span>Fitur</span><span>Cara kerja</span><span>Keamanan</span></div>
+          <div class="navright"><button class="btn ghost">Masuk</button><button class="btn primary">Mulai gratis</button></div>
+        </div>
+        <div class="hero">
+          <div>
+            <h3>Foto catatan jadi materi yang kamu ingat.</h3>
+            <p>Loopnote mengubah foto papan tulis dan catatan yang kamu pilih jadi ringkasan dan flashcard.</p>
+            <div class="ctas"><button class="btn primary">Mulai gratis</button><button class="btn secondary">Lihat cara kerjanya</button></div>
+          </div>
+          <div class="notecard">
+            <div class="notehead"><span class="chip">Fisika Dasar</span><span class="badge">Tinggi</span></div>
+            <p>Hukum Newton II: percepatan sebanding dengan gaya total dan berbanding terbalik dengan massa.</p>
+            <div class="divider"></div>
+            <div class="meta"><span>Kartu</span><strong>12</strong></div>
+            <div class="meta"><span>Diperbarui</span><strong>Hari ini</strong></div>
+          </div>
+        </div>
+        <div class="approw">
+          <div class="field">
+            <label>Topik</label>
+            <input value="Fisika Dasar" readonly>
+            <span class="help">Nama topik yang kamu pakai di kelas.</span>
+          </div>
+          <div class="stack">
+            <button class="btn primary">Simpan</button>
+            <button class="btn secondary">Batal</button>
+            <span class="status ok"><i class="dot"></i>Tersimpan</span>
+            <span class="status warn"><i class="dot"></i>Perlu dicek</span>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:var(--accent)"></i>accent #BE2F48</div>
+        <div class="sw"><i style="background:var(--accent-hover)"></i>hover #A52640</div>
+        <div class="sw"><i style="background:var(--tint)"></i>tint #FBE4E8</div>
+        <div class="sw"><i style="background:var(--surface)"></i>surface #FCFCFD</div>
+      </div>
+      <div class="note-foot"><b>Accent on background ≈ 5.3:1.</b> Radius 8 / 12 / 16 / 24. Cooler and deeper, closer to the pink sticky-note cue.</div>
+    </section>
+
+    <section class="panel b">
+      <div class="panel-head"><h2>B · Coral</h2><span>light</span></div>
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="wordmark">Loopnote</div>
+          <div class="navlinks"><span>Fitur</span><span>Cara kerja</span><span>Keamanan</span></div>
+          <div class="navright"><button class="btn ghost">Masuk</button><button class="btn primary">Mulai gratis</button></div>
+        </div>
+        <div class="hero">
+          <div>
+            <h3>Foto catatan jadi materi yang kamu ingat.</h3>
+            <p>Loopnote mengubah foto papan tulis dan catatan yang kamu pilih jadi ringkasan dan flashcard.</p>
+            <div class="ctas"><button class="btn primary">Mulai gratis</button><button class="btn secondary">Lihat cara kerjanya</button></div>
+          </div>
+          <div class="notecard">
+            <div class="notehead"><span class="chip">Fisika Dasar</span><span class="badge">Tinggi</span></div>
+            <p>Hukum Newton II: percepatan sebanding dengan gaya total dan berbanding terbalik dengan massa.</p>
+            <div class="divider"></div>
+            <div class="meta"><span>Kartu</span><strong>12</strong></div>
+            <div class="meta"><span>Diperbarui</span><strong>Hari ini</strong></div>
+          </div>
+        </div>
+        <div class="approw">
+          <div class="field">
+            <label>Topik</label>
+            <input value="Fisika Dasar" readonly>
+            <span class="help">Nama topik yang kamu pakai di kelas.</span>
+          </div>
+          <div class="stack">
+            <button class="btn primary">Simpan</button>
+            <button class="btn secondary">Batal</button>
+            <span class="status ok"><i class="dot"></i>Tersimpan</span>
+            <span class="status warn"><i class="dot"></i>Perlu dicek</span>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:var(--accent)"></i>accent #C9434A</div>
+        <div class="sw"><i style="background:var(--accent-hover)"></i>hover #B33A41</div>
+        <div class="sw"><i style="background:var(--tint)"></i>tint #FBE9EA</div>
+        <div class="sw"><i style="background:var(--surface)"></i>surface #FCFCFD</div>
+      </div>
+      <div class="note-foot"><b>Shown: #C9434A ≈ 4.5:1. Selected: #B93A41 ≈ 5.2:1.</b> Radius 6 / 10 / 16 / 20. Warmer and softer, less pink, more brick.</div>
+    </section>
+  </div>
+
+  <div class="rowlabel">Dark theme</div>
+  <div class="row">
+    <section class="panel a dark">
+      <div class="panel-head"><h2>A · Rose</h2><span>dark</span></div>
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="wordmark">Loopnote</div>
+          <div class="navlinks"><span>Fitur</span><span>Cara kerja</span><span>Keamanan</span></div>
+          <div class="navright"><button class="btn ghost">Masuk</button><button class="btn primary">Mulai gratis</button></div>
+        </div>
+        <div class="hero">
+          <div>
+            <h3>Foto catatan jadi materi yang kamu ingat.</h3>
+            <p>Loopnote mengubah foto papan tulis dan catatan yang kamu pilih jadi ringkasan dan flashcard.</p>
+            <div class="ctas"><button class="btn primary">Mulai gratis</button><button class="btn secondary">Lihat cara kerjanya</button></div>
+          </div>
+          <div class="notecard">
+            <div class="notehead"><span class="chip">Fisika Dasar</span><span class="badge">Tinggi</span></div>
+            <p>Hukum Newton II: percepatan sebanding dengan gaya total dan berbanding terbalik dengan massa.</p>
+            <div class="divider"></div>
+            <div class="meta"><span>Kartu</span><strong>12</strong></div>
+            <div class="meta"><span>Diperbarui</span><strong>Hari ini</strong></div>
+          </div>
+        </div>
+        <div class="approw">
+          <div class="field">
+            <label>Topik</label>
+            <input value="Fisika Dasar" readonly>
+            <span class="help">Nama topik yang kamu pakai di kelas.</span>
+          </div>
+          <div class="stack">
+            <button class="btn primary">Simpan</button>
+            <button class="btn secondary">Batal</button>
+            <span class="status ok"><i class="dot"></i>Tersimpan</span>
+            <span class="status warn"><i class="dot"></i>Perlu dicek</span>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:var(--accent)"></i>accent #F0707F</div>
+        <div class="sw"><i style="background:var(--accent-hover)"></i>hover #F58A97</div>
+        <div class="sw"><i style="background:var(--tint)"></i>tint #2E141A</div>
+        <div class="sw"><i style="background:var(--surface)"></i>surface #16161A</div>
+      </div>
+      <div class="note-foot"><b>Accent on background ≈ 6.7:1.</b> Warm tint keeps the note surface readable without a glow.</div>
+    </section>
+
+    <section class="panel b dark">
+      <div class="panel-head"><h2>B · Coral</h2><span>dark</span></div>
+      <div class="mock">
+        <div class="mock-nav">
+          <div class="wordmark">Loopnote</div>
+          <div class="navlinks"><span>Fitur</span><span>Cara kerja</span><span>Keamanan</span></div>
+          <div class="navright"><button class="btn ghost">Masuk</button><button class="btn primary">Mulai gratis</button></div>
+        </div>
+        <div class="hero">
+          <div>
+            <h3>Foto catatan jadi materi yang kamu ingat.</h3>
+            <p>Loopnote mengubah foto papan tulis dan catatan yang kamu pilih jadi ringkasan dan flashcard.</p>
+            <div class="ctas"><button class="btn primary">Mulai gratis</button><button class="btn secondary">Lihat cara kerjanya</button></div>
+          </div>
+          <div class="notecard">
+            <div class="notehead"><span class="chip">Fisika Dasar</span><span class="badge">Tinggi</span></div>
+            <p>Hukum Newton II: percepatan sebanding dengan gaya total dan berbanding terbalik dengan massa.</p>
+            <div class="divider"></div>
+            <div class="meta"><span>Kartu</span><strong>12</strong></div>
+            <div class="meta"><span>Diperbarui</span><strong>Hari ini</strong></div>
+          </div>
+        </div>
+        <div class="approw">
+          <div class="field">
+            <label>Topik</label>
+            <input value="Fisika Dasar" readonly>
+            <span class="help">Nama topik yang kamu pakai di kelas.</span>
+          </div>
+          <div class="stack">
+            <button class="btn primary">Simpan</button>
+            <button class="btn secondary">Batal</button>
+            <span class="status ok"><i class="dot"></i>Tersimpan</span>
+            <span class="status warn"><i class="dot"></i>Perlu dicek</span>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:var(--accent)"></i>accent #F0787D</div>
+        <div class="sw"><i style="background:var(--accent-hover)"></i>hover #F58F93</div>
+        <div class="sw"><i style="background:var(--tint)"></i>tint #3A2023</div>
+        <div class="sw"><i style="background:var(--surface)"></i>surface #161923</div>
+      </div>
+      <div class="note-foot"><b>Accent on background ≈ 7.0:1.</b> Navy-tinted neutrals make the dark theme feel cooler than the light one.</div>
+    </section>
+  </div>
+
+  <div class="rule"></div>
+  <h2 style="font-size:16px;margin:20px 0 4px">What actually differs</h2>
+  <table class="compare">
+    <thead><tr><th>Token</th><th>A · Rose</th><th>B · Coral</th></tr></thead>
+    <tbody>
+      <tr><td>Accent, light</td><td class="mono">#BE2F48</td><td class="mono">#C9434A</td></tr>
+      <tr><td>Accent, dark</td><td class="mono">#F0707F</td><td class="mono">#F0787D</td></tr>
+      <tr><td>Note surface</td><td class="mono">#FBE4E8</td><td class="mono">#FBE9EA</td></tr>
+      <tr><td>Neutrals</td><td>Neutral grey, slightly cool</td><td>Navy-tinted grey</td></tr>
+      <tr><td>Radius</td><td class="mono">8 / 12 / 16 / 24</td><td class="mono">6 / 10 / 16 / 20</td></tr>
+      <tr><td>Link contrast, light</td><td>≈ 5.3:1, passes with headroom</td><td>≈ 4.5:1, borderline for body links</td></tr>
+      <tr><td>Feel</td><td>Deeper, pinker, note-like</td><td>Warmer, softer, more brick</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rec">
+    <b>Chosen: B, coral darkened.</b> Accent #B93A41 in light, #F0787D in dark, navy neutrals, radius 6 / 10 / 16 / 20. The light accent is darkened from #C9434A so body-size links clear 4.5:1 at about 5.2:1.
+    <ol>
+      <li>The token table is locked in SPEC.md section 2.4. This file is the decision record, not the source of values.</li>
+      <li>Every pair still has to pass pnpm tokens:contrast. The approximate figures here are not a gate.</li>
+      <li>The pink sticky-note cue stays as the accent-soft surface, not as a second color.</li>
+    </ol>
+    <div class="ask">Locked: B darkened</div>
+  </div>
+</div>
+</body>
+</html>
