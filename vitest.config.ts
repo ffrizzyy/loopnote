@@ -1,6 +1,17 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  resolve: {
+    // Point tests at the source so a clean clone can run `pnpm test` before any
+    // package build has produced dist.
+    alias: {
+      "@loopnote/config/env": fileURLToPath(
+        new URL("./packages/config/src/env.ts", import.meta.url),
+      ),
+    },
+  },
   test: {
     environment: "node",
     include: ["{apps,packages}/**/*.test.ts"],

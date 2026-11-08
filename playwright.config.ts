@@ -30,7 +30,7 @@ export default defineConfig({
     : {
         // A production build, not the dev server. The smoke test should exercise what
         // ships, and the theme test in F-11 needs the real first paint.
-        command: `pnpm --filter @loopnote/web build && pnpm --filter @loopnote/web exec next start -p ${PORT}`,
+        command: `pnpm build && pnpm --filter @loopnote/web exec next start -p ${PORT}`,
         url: BASE_URL,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,

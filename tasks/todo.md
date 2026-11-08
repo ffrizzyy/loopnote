@@ -264,28 +264,42 @@ that fails CI when someone reads a variable that is not listed. A missing requir
 variable must fail with a readable message that names it, never a stack trace.
 
 **Acceptance criteria:**
-- [ ] `apps/web/src/env.ts` and `apps/worker/src/env.ts` parse and freeze config
-      through a shared Zod factory in `packages/config`.
-- [ ] A required variable that is missing at boot prints one line naming the variable
-      and exits non-zero.
-- [ ] `pnpm env:check` scans source for `process.env` reads, compares them to
-      `.env.example`, and fails naming any unlisted variable.
-- [ ] `.env.example` has names and safe placeholders only. Nothing resembles a real
+- [x] `apps/web/src/env.ts` and `apps/worker/src/env.ts` parse and freeze config
+      through a shared Zod factory in `packages/config`. Each env module names every
+      variable it reads, so the list is inspectable rather than hidden behind a
+      spread of `process.env`.
+- [x] A required variable that is missing at boot prints one line naming the variable
+      and exits non-zero. `DATABASE_URL` is required when `NODE_ENV` is production and
+      optional in development, because the worker has no queues yet. Verified against
+      the built worker: stderr `env: DATABASE_URL is missing or invalid`, empty stdout,
+      exit 1, no stack trace.
+- [x] `pnpm env:check` scans source for `process.env` reads, compares them to
+      `.env.example`, and fails naming any unlisted variable. Reads are found in both
+      dot and bracket form, and a whole object read outside `src/env.ts` is reported.
+- [x] `.env.example` has names and safe placeholders only. Nothing resembles a real
       secret.
-- [ ] Reading `process.env` outside `src/env.ts` is a lint error, not just a review
-      rule.
+- [x] Reading `process.env` outside `src/env.ts` is a lint error, not just a review
+      rule. The override allows `src/env.ts` itself, and the lint message names the
+      file that owns the contract.
 
 **Verification:**
-- [ ] Add a `process.env.UNLISTED` read, confirm `pnpm env:check` fails and names it,
-      revert.
-- [ ] Unset a required variable, run the app, confirm the readable message.
-- [ ] `pnpm test` covers the parser failure output.
+- [x] `process.env.UNLISTED_SECRET` in `apps/worker/src/probe.ts` failed `pnpm lint`
+      with `no-restricted-properties` and failed `pnpm env:check` with
+      `apps\worker\src\probe.ts:1 reads UNLISTED_SECRET`. Probe removed.
+- [x] Unset the required variable, run the built worker with `NODE_ENV=production`,
+      confirm the readable one-line message and exit 1.
+- [x] `pnpm test` covers the parser failure output: plural and singular messages,
+      sorting, no values in the message, and the stderr reporter. 19 tests across 4
+      files.
 
 **Depends on:** F-02
 
 **Files likely touched:**
-- `apps/web/src/env.ts`, `packages/config/src/env.ts`, `.env.example`,
-  `scripts/env-check.ts`, `apps/web/src/env.test.ts`
+- `apps/web/src/env.ts`, `apps/web/src/env.test.ts`, `apps/worker/src/env.ts`,
+  `apps/worker/src/env.test.ts`, `packages/config/src/env.ts`,
+  `packages/config/src/env.test.ts`, `.env.example`, `scripts/env-check.ts`,
+  `packages/config/eslint/base.js`, `turbo.json`, `playwright.config.ts`,
+  `vitest.config.ts`
 
 **Size:** M
 
@@ -400,6 +414,11 @@ made real and tested.
 - [ ] Tailwind v4 runs through `@tailwindcss/postcss`. `@theme` maps every token to a
       CSS variable. No component uses a raw hex or an arbitrary spacing value.
 - [ ] Radius scale is 6, 10, 16, 20, and full, exposed as utilities.
+- [ ] shadcn semantic names are mapped without stealing `--accent`. `--color-primary`
+      points at `--accent`, while shadcn's `accent` utility, which it uses for subtle
+      hover fills, points at `--accent-soft`. Also map `background`, `foreground`,
+      `card`, `muted`, `border`, `input`, `ring`, and `destructive`. Without this map
+      every shadcn component renders partially unstyled.
 - [ ] Geist Sans and Geist Mono are self-hosted through `next/font`. No external font
       request.
 - [ ] An inline script sets `data-theme` on `<html>` before first paint, reading the
@@ -452,6 +471,13 @@ component gets four variants for free. Nothing in Phase 3 starts before this is 
 - [ ] A probe story with an image missing `alt` makes `storybook:test` fail, then the
       probe is fixed and passes.
 - [ ] Stories follow one naming convention and live beside components.
+- [ ] Any component that reads a next-intl message gets `NextIntlClientProvider` from
+      `.storybook/preview.tsx`, never from the story itself. Storybook does not preserve
+      Next client boundaries, so a missing provider is a runtime story error that no
+      lint rule catches.
+- [ ] The framework is `@storybook/nextjs-vite` at 10.6.5, the version proven in F-06.
+      A passing story is a render check only. `pnpm build` stays in `verify` because it
+      is the only thing that proves server and client boundaries compile.
 
 **Verification:**
 - [ ] `pnpm build-storybook` succeeds.
@@ -486,6 +512,10 @@ forbids the accent fill. Input and Textarea cover label, help, error, and
 - [ ] Four stories each, light and dark, `id` and `en`, axe clean.
 - [ ] No default shadcn visual state remains: no grey border, no default radius, no
       default ring.
+- [ ] Anything generated by the shadcn CLI at 4.23 is reviewed before commit. It writes
+      imports from the `cn` and `radix-ui` packages and adds caret ranges, so every
+      generated file gets an exact pin and a changed import if the local `cn` helper is
+      preferred. This is recorded in `docs/spikes/stack-compatibility.md`.
 
 **Verification:**
 - [ ] `pnpm storybook:test` green.

@@ -1,8 +1,25 @@
+import { reportEnvError } from "@loopnote/config/env";
+
+import { loadEnv } from "./env.js";
 import { createShutdownController } from "./shutdown.js";
 
 const SERVICE = "worker";
-const HEARTBEAT_MS = 30_000;
 const SHUTDOWN_TIMEOUT_MS = 5000;
+
+/**
+ * Parsed before anything else so a bad environment prints one line and exits 1,
+ * never a stack trace. Anything that is not an environment problem is rethrown.
+ */
+const env = (() => {
+  try {
+    return loadEnv();
+  } catch (error) {
+    if (reportEnvError(error)) process.exit(1);
+    throw error;
+  }
+})();
+
+const HEARTBEAT_MS = env.WORKER_HEARTBEAT_MS;
 
 const startedAt = Date.now();
 

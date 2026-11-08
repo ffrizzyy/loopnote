@@ -30,9 +30,33 @@ export const ignores = [
   "**/test-results/**",
 ];
 
+const ENV_MESSAGE =
+  "Read environment variables through src/env.ts, never process.env directly.";
+
 export const base = tseslint.config(
   { ignores },
   js.configs.recommended,
+  {
+    files: ["apps/*/src/**/*.{ts,tsx}", "packages/*/src/**/*.{ts,tsx}"],
+    ignores: ["**/src/env.ts"],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "process",
+          property: "env",
+          message: ENV_MESSAGE,
+        },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "MemberExpression[object.name='process'][property.value='env']",
+          message: ENV_MESSAGE,
+        },
+      ],
+    },
+  },
   {
     files: TS_FILES,
     extends: [...tseslint.configs.recommended],
@@ -84,6 +108,15 @@ export const base = tseslint.config(
       "no-param-reassign": "error",
 
       ...securityRules(),
+    },
+  },
+  {
+    // CLI scripts walk the repository and print to the terminal by design. The
+    // non-literal fs warning assumes an HTTP input, which cannot happen here.
+    files: ["scripts/**/*.ts"],
+    rules: {
+      "no-console": "off",
+      "security/detect-non-literal-fs-filename": "off",
     },
   },
   prettier,

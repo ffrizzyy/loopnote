@@ -63,3 +63,21 @@ empty temporary directory.
 `pnpm dev` was checked on the working copy rather than the clone: the harness route
 returned 200 with the expected h1, and the worker logged `worker.started` followed by
 the 30 second heartbeat. A full install time target is measured separately in F-29.
+
+### Env contract
+
+F-07, 2026-11-08. Two gates, both proven by breaking them.
+
+- Lint and `pnpm env:check` on a deliberate `process.env.UNLISTED_SECRET` read:
+  - lint: `no-restricted-properties`, `'process.env' is restricted from being used`.
+  - check: `env:check failed`, then
+    `apps\worker\src\probe.ts:1 reads UNLISTED_SECRET, which .env.example does not list`,
+    exit 1.
+- Boot failure on the built worker with `NODE_ENV=production` and `DATABASE_URL`
+  unset: stdout empty, stderr exactly `env: DATABASE_URL is missing or invalid`,
+  exit 1, no stack trace.
+- Heartbeat override on the built worker with `WORKER_HEARTBEAT_MS=1000`:
+  `worker.started` reported `heartbeatMs: 1000`, followed by heartbeats at 1007 ms
+  and 2011 ms. The value comes from the env module, not a constant.
+- `pnpm test:coverage`: 96.55 percent statements, 88.88 percent branches, 100 percent
+  functions and lines across 4 files and 19 tests.
