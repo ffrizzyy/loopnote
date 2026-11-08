@@ -10,6 +10,9 @@ export default defineConfig({
       "@loopnote/config/env": fileURLToPath(
         new URL("./packages/config/src/env.ts", import.meta.url),
       ),
+      "@loopnote/schemas": fileURLToPath(
+        new URL("./packages/schemas/src/index.ts", import.meta.url),
+      ),
     },
   },
   test: {

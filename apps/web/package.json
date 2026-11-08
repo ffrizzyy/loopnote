@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@loopnote/config": "workspace:*",
+    "@loopnote/schemas": "workspace:*",
+    "hono": "4.13.17",
     "next": "16.4.3",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "uuid": "14.0.3",
     "zod": "4.6.7"
   },
   "devDependencies": {

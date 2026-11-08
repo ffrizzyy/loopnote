@@ -81,3 +81,20 @@ F-07, 2026-11-08. Two gates, both proven by breaking them.
   and 2011 ms. The value comes from the env module, not a constant.
 - `pnpm test:coverage`: 96.55 percent statements, 88.88 percent branches, 100 percent
   functions and lines across 4 files and 19 tests.
+
+### Error contract
+
+F-08, 2026-11-08. One problem shape, one code registry, one helper.
+
+- `ProblemSchema` parses the section 3.1 example and rejects unknown keys, a stack,
+  an internal UUID in `detail`, an overlong detail, an unknown code, a UUIDv4
+  `requestId`, a 2xx status, and any `type`, `title`, or `status` that disagrees with
+  the code.
+- The helper emitted 400, 404, 429, and 500 responses with exactly
+  `content-type: application/problem+json`, `cache-control: no-store`, the six
+  contract keys, and a fresh UUIDv7 `requestId` per response.
+- Append-only drill: removing `note_not_found` from the registry failed
+  `keeps every published code, status, and title` at
+  `expected { …(6) } to have property "note_not_found"`. The entry was restored.
+- `pnpm test:coverage`: 97.36 percent statements, 91.3 percent branches, 100 percent
+  functions and lines across 6 files and 39 tests.

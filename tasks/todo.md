@@ -312,18 +312,25 @@ route invents its own error envelope later. The code registry is append-only and
 tested as such.
 
 **Acceptance criteria:**
-- [ ] `ProblemSchema` matches section 3.1 of the spec exactly and rejects extra
-      fields, including `stack` and `detail` carrying internal IDs.
-- [ ] `problemCode` is an append-only registry. A test fails if an existing code is
-      removed or renamed.
-- [ ] `problem(c, status, code, detail?)` sets
+- [x] `ProblemSchema` matches section 3.1 of the spec exactly and rejects extra
+      fields, including `stack` and `detail` carrying internal IDs. Unknown keys are
+      rejected, `detail` is capped at 300 characters, and a UUID-shaped detail fails.
+      The schema also checks that `type`, `title`, and `status` agree with the code.
+- [x] `problemCode` is an append-only registry. A test fails if an existing code is
+      removed or renamed. The registry is `problemRegistry` in
+      `packages/schemas/src/problem.ts`; `LOCKED_CODES` in the test is a deliberate
+      duplicate that acts as the contract.
+- [x] `problem(c, status, code, detail?)` sets
       `Content-Type: application/problem+json`, generates a UUIDv7 `requestId`, and
-      returns no stack.
-- [ ] Unit tests cover 400, 404, 429, and 500 shapes and the content type.
+      returns no stack. It also sets `Cache-Control: no-store` and defaults `detail`
+      to the registry sentence.
+- [x] Unit tests cover 400, 404, 429, and 500 shapes and the content type.
 
 **Verification:**
-- [ ] `pnpm test` green on the schema and helper.
-- [ ] Remove one registry entry, confirm the append-only test fails, revert.
+- [x] `pnpm test` green on the schema and helper. 39 tests across 6 files.
+- [x] Remove one registry entry, confirm the append-only test fails, revert. Removing
+      `note_not_found` failed `keeps every published code, status, and title` with
+      `expected { …(6) } to have property "note_not_found"`. Restored immediately.
 
 **Depends on:** F-02
 
