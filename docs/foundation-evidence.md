@@ -46,3 +46,19 @@ Testing 156.
 - End to end: 2 tests against a production build on port 3100, both passing. The
   server-rendered h1 is asserted by role, and the console error check collects every
   error message from load to network idle.
+
+### Clean clone, Phase 1 checkpoint
+
+2026-11-08, commit `86beec4`. Cloned `https://github.com/ffrizzyy/loopnote.git` into an
+empty temporary directory.
+
+| Step | Result |
+|---|---|
+| `git clone` | commit `86beec4` |
+| `pnpm install` | clean, 3 minutes 5 seconds, pnpm 12.11.2 |
+| `pnpm verify` | exit 0, 4 tests passing |
+| `pnpm e2e` | exit 0, 2 tests passing |
+
+`pnpm dev` was checked on the working copy rather than the clone: the harness route
+returned 200 with the expected h1, and the worker logged `worker.started` followed by
+the 30 second heartbeat. A full install time target is measured separately in F-29.

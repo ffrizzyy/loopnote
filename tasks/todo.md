@@ -246,7 +246,7 @@ unknown in the module and it runs first.
 
 ## Checkpoint: Phase 1, after F-01 to F-06
 
-- [ ] `pnpm install` then `pnpm verify` is green on a clean clone.
+- [x] `pnpm install` then `pnpm verify` is green on a clean clone.
 - [x] `pnpm dev` serves the harness page and starts the worker.
 - [x] `pnpm e2e` smoke passes.
 - [x] The spike note ends in a go or no-go with pinned versions.
