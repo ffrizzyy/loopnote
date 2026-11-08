@@ -115,8 +115,9 @@ smallest thing that can build and deploy, and the base for the compatibility spi
 - [x] First-load JS on the harness route is measured and recorded:
       170.4 kB gzipped across the six chunks the served HTML references, with zero
       application JavaScript. Recorded in `docs/foundation-evidence.md`.
-- [ ] Budget decision. The measured floor already exceeds the 150 kB target in
-      criterion 18, so the threshold needs raising to 200 kB. Awaiting approval.
+- [x] Budget decision. The measured floor exceeded the original 150 kB target in
+      criterion 18, so the ceiling was raised to 200 kB with approval on 2026-11-08.
+      `SPEC-foundation.md` and `docs/foundation-evidence.md` both record it.
 
 **Verification:**
 - [x] `pnpm build` succeeds.
@@ -1074,7 +1075,7 @@ is a gate nobody should trust.
 | 15 | Threat model covers six surfaces, ASVS checklist has an owner per item | F-25, F-26 |
 | 16 | Six ADRs exist and are linked from the README | F-27, F-28, F-29 |
 | 17 | A pull request gets a preview URL serving the harness and health route | F-23 |
-| 18 | Harness route JS is 150 kB gzipped or less, no GSAP in the app shell | F-03, F-11, F-22 |
+| 18 | Harness route JS is 200 kB gzipped or less, no GSAP in the app shell | F-03, F-11, F-22 |
 
 ---
 

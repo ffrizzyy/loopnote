@@ -22,14 +22,15 @@ with .NET `CompressionLevel.Optimal`.
 | `2smvhoyqrx66l.js` | 13,825 | 3,526 |
 | **Total** | **568,685** | **170,463 (170.4 kB)** |
 
-**This misses the 150 kB budget in criterion 18.** The framework floor on its own is
-170.4 kB, before a single component, font, or product line exists. No application
-code is in the bundle, so this is a floor rather than a regression, and trimming it
-would mean dropping the App Router or the polyfill chunk.
+**This missed the original 150 kB budget in criterion 18.** The framework floor on its
+own is 170.4 kB, before a single component, font, or product line exists. No
+application code is in the bundle, so this is a floor rather than a regression, and
+trimming it would mean dropping the App Router or the polyfill chunk.
 
-Proposal, pending approval: raise the harness-route budget to 200 kB gzipped and keep
-`SPEC.md` section 1.4's separate landing-page LCP, INP, and CLS budgets unchanged.
-Recorded here rather than edited into the spec, because the spec threshold is approved.
+Decision, approved 2026-11-08: criterion 18 is now 200 kB gzipped, recorded in
+`SPEC-foundation.md`. That leaves roughly 30 kB of headroom for real components before
+the next review. `SPEC.md` section 1.4's separate landing-page LCP, INP, and CLS
+budgets are unchanged.
 
 ### Test harness
 

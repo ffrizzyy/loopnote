@@ -161,8 +161,10 @@ pnpm tokens:contrast     # fail on any defined pair below 4.5:1 (3:1 large)
     and tokens, Better Auth, Vercel and managed services, FSRS, coral darkened palette.
 17. A pull request gets a Vercel preview URL that renders the harness page and the
     health route.
-18. First-load JavaScript on the harness route is 150 kB gzipped or less, and GSAP is
-    not imported anywhere in the app shell.
+18. First-load JavaScript on the harness route is 200 kB gzipped or less, and GSAP is
+    not imported anywhere in the app shell. The 200 kB ceiling replaces the earlier
+    150 kB figure after F-03 measured a 170.4 kB framework floor with zero application
+    code; see `docs/foundation-evidence.md`.
 
 ---
 
