@@ -1,0 +1,44 @@
+/* Colour and radius values. The test compares this file to renderTokensCss(). */
+:root {
+  --bg: #f6f7f9;
+  --surface: #fcfcfd;
+  --surface-2: #eef0f4;
+  --border: #e1e4ea;
+  --border-strong: #c9ced8;
+  --text: #14161f;
+  --text-2: #444a5b;
+  --text-3: #626879;
+  --accent: #b93a41;
+  --accent-hover: #a33339;
+  --accent-fg: #fff9f8;
+  --accent-soft: #fbe9ea;
+  --accent-soft-fg: #8e2a30;
+  --success: #2b7a50;
+  --warning: #9a6412;
+  --danger: #a8232f;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-full: 9999px;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1117;
+  --surface: #161923;
+  --surface-2: #1d212c;
+  --border: #2a2f3c;
+  --border-strong: #3a4050;
+  --text: #eceef3;
+  --text-2: #b4b9c8;
+  --text-3: #8c93a6;
+  --accent: #f0787d;
+  --accent-hover: #f58f93;
+  --accent-fg: #14161f;
+  --accent-soft: #3a2023;
+  --accent-soft-fg: #f7a3a6;
+  --success: #5cc48c;
+  --warning: #e0ae57;
+  --danger: #f28b93;
+}

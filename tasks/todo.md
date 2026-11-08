@@ -389,23 +389,35 @@ contrast a test rather than an opinion. Gate the locked coral darkened palette w
 real WCAG math and fixed expected values.
 
 **Acceptance criteria:**
-- [ ] `tokens.ts` holds the full table from `SPEC.md` section 2.4, typed, with light
-      and dark variants.
-- [ ] `tokens.css` exposes the same values as custom properties on `:root` and
-      `[data-theme="dark"]`.
-- [ ] `scripts/contrast.ts` computes WCAG relative luminance and prints one row per
-      defined pair with the ratio.
-- [ ] `pnpm tokens:contrast` passes the locked palette: text on background, text-2 on
-      surface, accent on background, accent-fg on accent, danger on background.
-- [ ] Thresholds are 4.5:1 for body text and 3:1 for large text. `text-3` is marked
-      caption-only until measured.
-- [ ] A unit test pins expected ratios so a token edit fails loudly.
-- [ ] Darkening or lightening one token beyond its threshold fails the command.
+- [x] `tokens.ts` holds the full table from `SPEC.md` section 2.4, typed, with light
+      and dark variants. `colors` is the only place a hex value exists. `radii`
+      holds 6, 10, 16, 20, and 9999 px.
+- [x] `tokens.css` exposes the same values as custom properties on `:root` and
+      `[data-theme="dark"]`. A unit test compares the file to `renderTokensCss()`,
+      so the two tables cannot drift.
+- [x] `scripts/contrast.ts` computes WCAG relative luminance and prints one row per
+      defined pair with the ratio. `pnpm tokens:contrast` prints 40 rows for 20
+      pairs across both themes.
+- [x] `pnpm tokens:contrast` passes the locked palette: text on background, text-2
+      on surface, accent on background, accent-fg on accent, danger on background,
+      plus the hover, soft, success, warning, and surface combinations components
+      will use.
+- [x] Thresholds are 4.5:1 for body text and 3:1 for large text and UI. `text-3`
+      was caption-only until measured; it reaches 5.189:1 light and 6.146:1 dark on
+      `bg`, so it is now held to the body threshold rather than the large-text one.
+- [x] A unit test pins expected ratios to three decimals, so a token edit fails
+      loudly. It also fails when a new pair has no pin or a pin has no pair.
+- [x] Lightening `--accent` to `#C9434A` fails the command. Two of 40 rows dropped
+      below 4.5:1; the token was restored.
 
 **Verification:**
-- [ ] `pnpm tokens:contrast` prints the report and exits 0.
-- [ ] Change `--accent` to `#C9434A`, confirm failure, revert.
-- [ ] `pnpm test` green on the contrast function.
+- [x] `pnpm tokens:contrast` prints the report and exits 0.
+- [x] Change `--accent` to `#C9434A`, confirm failure, revert. The command reported
+      `tokens:contrast failed: 2 of 40 rows below threshold` and exited 1.
+- [x] `pnpm test` green on the contrast function. 8 tests in the tokens package:
+      WCAG extremes, malformed hex, threshold boundaries, all 40 pinned ratios, no
+      stale pins, every pair passing, the radius scale, and CSS sync.
+- [x] `pnpm verify:full` green: 51 unit tests, 4 integration tests, 2 e2e tests.
 
 **Depends on:** F-02
 

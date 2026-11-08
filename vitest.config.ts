@@ -38,6 +38,9 @@ export default defineConfig({
         "**/.next/**",
         "**/*.d.ts",
         "**/index.ts",
+        // The Next route entry is a one-line adapter export. The integration
+        // suite owns it, and the Hono app inside it is unit tested.
+        "**/src/app/**",
       ],
       // The bar from SPEC.md section 6. Auth, billing, and the scheduler carry a 90
       // percent bar. Those paths are declared now and match nothing, so the config

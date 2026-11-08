@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css"
   },
   "scripts": {
+    "tokens:contrast": "tsx scripts/contrast.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@loopnote/config": "workspace:*"
+    "@loopnote/config": "workspace:*",
+    "tsx": "4.23.15"
   }
 }

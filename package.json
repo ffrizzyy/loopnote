@@ -21,8 +21,9 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "env:check": "tsx scripts/env-check.ts",
+    "tokens:contrast": "pnpm --filter @loopnote/tokens tokens:contrast",
     "e2e": "playwright test",
-    "verify": "pnpm typecheck && pnpm typecheck:integration && pnpm lint && pnpm env:check && pnpm format:check && pnpm test",
+    "verify": "pnpm typecheck && pnpm typecheck:integration && pnpm lint && pnpm env:check && pnpm tokens:contrast && pnpm format:check && pnpm test",
     "verify:full": "pnpm verify && pnpm test:integration && pnpm e2e"
   },
   "devDependencies": {

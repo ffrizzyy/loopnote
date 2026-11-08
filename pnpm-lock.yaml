@@ -311,6 +311,9 @@ importers:
       '@loopnote/config':
         specifier: workspace:*
         version: link:../config
+      tsx:
+        specifier: 4.23.15
+        version: 4.23.15
 
   packages/ui:
     devDependencies:

@@ -113,7 +113,8 @@ export const base = tseslint.config(
   {
     // CLI scripts walk the repository and print to the terminal by design. The
     // non-literal fs warning assumes an HTTP input, which cannot happen here.
-    files: ["scripts/**/*.ts"],
+    // The glob covers both the root scripts and a package's own scripts folder.
+    files: ["**/scripts/**/*.ts"],
     rules: {
       "no-console": "off",
       "security/detect-non-literal-fs-filename": "off",

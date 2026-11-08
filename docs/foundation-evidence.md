@@ -115,3 +115,23 @@ F-09, 2026-11-08. Hono inside the Next route handler, with one exit for every er
     `content-type: application/problem+json`, `code: not_found`, UUIDv7 `requestId`.
 - `next build` lists the route as dynamic: `ƒ /api/[[...route]]`.
 - `pnpm verify:full`: 39 unit tests, 4 integration tests, and 2 e2e tests green.
+
+### Tokens and contrast
+
+F-10, 2026-11-08. The palette is data, and contrast is a gate.
+
+- `packages/tokens/src/tokens.ts` is the only place a hex value exists. It holds
+  light and dark values for 16 colours plus the 6, 10, 16, 20, and 9999 px radii.
+- `tokens.css` is compared byte for byte to `renderTokensCss()`, so the CSS and the
+  TS table cannot drift. Hex values in the CSS are lowercased to match Prettier.
+- `pnpm tokens:contrast` printed 40 rows for 20 pairs across both themes and exited
+  0. The narrowest passes are `--warning` on `--bg` at 4.658:1 light and `--accent`
+  on `--bg` at 5.232:1 light.
+- `--text-3` measured 5.189:1 on `--bg` and 5.425:1 on `--surface` in light, and
+  6.146:1 and 5.712:1 in dark. It clears the body threshold, so the "caption-only
+  until measured" caveat is closed.
+- Deliberate failure: changing light `--accent` to `#C9434A` made the command report
+  `2 of 40 rows below threshold` and exit 1. The token was restored.
+- The ratio test pins all 40 rows to three decimals. A new pair without a pin, or a
+  stale pin without a pair, also fails.
+- `pnpm verify:full`: 51 unit tests, 4 integration tests, and 2 e2e tests green.
