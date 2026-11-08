@@ -202,6 +202,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@hono/vercel':
+        specifier: 1.0.1
+        version: 1.0.1(hono@4.13.17)
       '@loopnote/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -650,6 +653,12 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@hono/vercel@1.0.1':
+    resolution: {integrity: sha512-2g9P7VOHB7k99t20vZd6Mv8Pvq/PwgTYI29NBgDPohUy4KNceylHW7hCSrD7Q8XrbFo0p+Na2ScymTFDCRX3Uw==}
+    engines: {node: '>=16.9.0'}
+    peerDependencies:
+      hono: '>=4.13.9 || ^5.0.0-0'
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2930,6 +2939,10 @@ snapshots:
       levn: 0.4.1
 
   '@exodus/bytes@1.16.0': {}
+
+  '@hono/vercel@1.0.1(hono@4.13.17)':
+    dependencies:
+      hono: 4.13.17
 
   '@humanfs/core@0.19.2':
     dependencies:

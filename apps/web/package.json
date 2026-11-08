@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@hono/vercel": "1.0.1",
     "@loopnote/config": "workspace:*",
     "@loopnote/schemas": "workspace:*",
     "hono": "4.13.17",

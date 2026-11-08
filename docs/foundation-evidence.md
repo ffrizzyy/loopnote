@@ -98,3 +98,20 @@ F-08, 2026-11-08. One problem shape, one code registry, one helper.
   `expected { …(6) } to have property "note_not_found"`. The entry was restored.
 - `pnpm test:coverage`: 97.36 percent statements, 91.3 percent branches, 100 percent
   functions and lines across 6 files and 39 tests.
+
+### API surface
+
+F-09, 2026-11-08. Hono inside the Next route handler, with one exit for every error.
+
+- `pnpm test:integration`: 4 tests against the exported route handler. Health is
+  `200` with the package version and `no-store`; an unknown route under v1 and one
+  outside v1 are both `404 application/problem+json`; a thrown sentinel error is
+  `500 application/problem+json` and the body does not contain the sentinel message
+  or a stack.
+- Manual `curl -i` against `next start`:
+  - `/api/v1/health`: `200`, `content-type: application/json`,
+    `cache-control: no-store`, `{"status":"ok","version":"0.0.0"}`.
+  - `/api/v1/nope` and `/api/v2/nope`: `404`,
+    `content-type: application/problem+json`, `code: not_found`, UUIDv7 `requestId`.
+- `next build` lists the route as dynamic: `ƒ /api/[[...route]]`.
+- `pnpm verify:full`: 39 unit tests, 4 integration tests, and 2 e2e tests green.

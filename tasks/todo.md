@@ -349,20 +349,28 @@ route, and make unknown routes and thrown errors return the problem shape. This 
 the first real API surface and the template every later route follows.
 
 **Acceptance criteria:**
-- [ ] Hono is mounted at `apps/web/src/app/api/[[...route]]/route.ts` and serves
-      `/api/v1/health`.
-- [ ] Health returns `200` with `{ status: "ok", version }`, no auth, and
+- [x] Hono is mounted at `apps/web/src/app/api/[[...route]]/route.ts` and serves
+      `/api/v1/health`. The mounted app uses `basePath("/api/v1")` and the maintained
+      `@hono/vercel` 1.0.1 adapter, because `hono/vercel` is deprecated for v5.
+- [x] Health returns `200` with `{ status: "ok", version }`, no auth, and
       `Cache-Control: no-store`.
-- [ ] `version` comes from the package version, not a hardcoded string.
-- [ ] Unknown `/api/v1/*` routes return `404 application/problem+json` with `code`
-      and `requestId`.
-- [ ] Unhandled errors return `500` in the same shape, with no message from the error
-      object.
-- [ ] Integration test asserts the content type, not just the status code.
+- [x] `version` comes from the package version, not a hardcoded string.
+      `server/routes/health.ts` imports `apps/web/package.json`.
+- [x] Unknown `/api/v1/*` routes return `404 application/problem+json` with `code`
+      and `requestId`. Paths outside v1 go through the same `notFound` handler.
+- [x] Unhandled errors return `500` in the same shape, with no message from the error
+      object. A test route throws a sentinel string and the response is checked for it.
+- [x] Integration test asserts the content type, not just the status code.
 
 **Verification:**
-- [ ] `pnpm test:integration` passes for health, unknown route, and thrown error.
-- [ ] Manual: `curl -i` health and an unknown route, confirm headers.
+- [x] `pnpm test:integration` passes for health, unknown route, and thrown error. The
+      suite calls the exported route handler with a real `Request`, so it exercises
+      the Next mount, the Hono base path, and the adapter. 4 tests.
+- [x] Manual: `curl -i` health and an unknown route, confirm headers. Health returned
+      `200`, `content-type: application/json`, `cache-control: no-store`, and
+      `{"status":"ok","version":"0.0.0"}`. Unknown routes returned `404`,
+      `content-type: application/problem+json`, and a UUIDv7 `requestId`.
+- [x] `pnpm verify:full` is green: 39 unit tests, 4 integration tests, 2 e2e tests.
 
 **Depends on:** F-08
 
