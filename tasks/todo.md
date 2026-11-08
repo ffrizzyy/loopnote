@@ -215,22 +215,30 @@ coexist before any of them are wired into the product. This is the highest-risk
 unknown in the module and it runs first.
 
 **Acceptance criteria:**
-- [ ] `docs/spikes/stack-compatibility.md` lists exact pinned versions for every
-      tool in the chain.
-- [ ] One throwaway branch renders a Next component inside Storybook with the
-      framework of record. Screenshot or transcript attached to the note.
-- [ ] Go or no-go recorded per item, with the fallback named: Vite builder for
-      Storybook, Node 22 LTS, Tailwind v4 with a later `@theme` review.
-- [ ] Nothing from the spike merges into `main` except the note and the pins.
+- [x] `docs/spikes/stack-compatibility.md` lists exact pinned versions for every
+      tool in the chain: Node, pnpm, TypeScript, Next, React, Tailwind, the PostCSS
+      plugin, shadcn, Storybook, its Next Vite framework, Vite, Rolldown, next-intl,
+      and the component level packages.
+- [x] One throwaway branch, `spike/stack-compatibility`, rendered a Next component
+      inside Storybook with `@storybook/nextjs-vite`. The screenshot is at
+      `docs/spikes/stack-compatibility-storybook.png`: a client component reading a
+      next-intl message, styled from `@theme` tokens, with zero console errors.
+- [x] Go or no-go recorded per item, with the fallback named: `@storybook/react-vite`
+      with a manual alias, Node 22 LTS, Tailwind 3.4, manual shadcn copies, and
+      manual next-intl message loading.
+- [x] Nothing from the spike merged except the note and the pins. The spike workspace
+      lives only in the throwaway branch commit, which is deleted after this lands.
 
 **Verification:**
-- [ ] `pnpm verify` still green on `main` after the note lands.
-- [ ] Manual: read the note and confirm every fallback is actionable by one person.
+- [x] `pnpm verify` still passes on `main` after the note lands.
+- [x] Manual: every fallback in the note is a package name plus one config change, so
+      one person can take it without a new decision.
 
 **Depends on:** F-03
 
 **Files likely touched:**
-- `docs/spikes/stack-compatibility.md`, `package.json`
+- `docs/spikes/stack-compatibility.md`,
+  `docs/spikes/stack-compatibility-storybook.png`
 
 **Size:** S
 
@@ -239,9 +247,9 @@ unknown in the module and it runs first.
 ## Checkpoint: Phase 1, after F-01 to F-06
 
 - [ ] `pnpm install` then `pnpm verify` is green on a clean clone.
-- [ ] `pnpm dev` serves the harness page and starts the worker.
-- [ ] `pnpm e2e` smoke passes.
-- [ ] The spike note ends in a go or no-go with pinned versions.
+- [x] `pnpm dev` serves the harness page and starts the worker.
+- [x] `pnpm e2e` smoke passes.
+- [x] The spike note ends in a go or no-go with pinned versions.
 - [ ] Human review before Phase 2.
 
 ---
