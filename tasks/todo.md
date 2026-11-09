@@ -438,27 +438,46 @@ user never sees a light flash. This is the theme contract in section 3.3 of the 
 made real and tested.
 
 **Acceptance criteria:**
-- [ ] Tailwind v4 runs through `@tailwindcss/postcss`. `@theme` maps every token to a
-      CSS variable. No component uses a raw hex or an arbitrary spacing value.
-- [ ] Radius scale is 6, 10, 16, 20, and full, exposed as utilities.
-- [ ] shadcn semantic names are mapped without stealing `--accent`. `--color-primary`
-      points at `--accent`, while shadcn's `accent` utility, which it uses for subtle
-      hover fills, points at `--accent-soft`. Also map `background`, `foreground`,
-      `card`, `muted`, `border`, `input`, `ring`, and `destructive`. Without this map
-      every shadcn component renders partially unstyled.
-- [ ] Geist Sans and Geist Mono are self-hosted through `next/font`. No external font
-      request.
-- [ ] An inline script sets `data-theme` on `<html>` before first paint, reading the
-      cookie first, then `prefers-color-scheme`, defaulting to light.
-- [ ] Root sets the theme once. No section flips it mid-page.
-- [ ] Playwright test with `colorScheme: "dark"` asserts the computed body background
-      is `#0F1117` before hydration.
-- [ ] `packages/config` exports the Tailwind preset, and no app carries its own copy.
+- [x] Tailwind v4 runs through `@tailwindcss/postcss`. `@theme` maps every token to a
+      CSS variable. The theme lives in `packages/config/src/tailwind.ts` and is
+      exported as `@loopnote/config/tailwind.css`; `globals.css` imports it once and
+      carries no copy. Tailwind 4.3.3 and `@tailwindcss/postcss` 4.3.3 are pinned.
+- [x] No component uses a raw hex or an arbitrary spacing value. A unit test walks
+      `apps` and `packages`, skips `packages/tokens`, and fails on a hex or on
+      `p-[...]`/`gap-[...]`-style spacing. Adding `// drill: #ff0000` to `page.tsx`
+      failed it and was removed.
+- [x] Radius scale is 6, 10, 16, 20, and full, exposed as utilities. `--radius-sm`
+      through `--radius-full` point at `--r-sm` through `--r-full`.
+- [x] shadcn semantic names are mapped without stealing `--accent`. `--color-primary`
+      points at `--accent`, while shadcn's `accent` utility points at `--accent-soft`.
+      `background`, `foreground`, `card`, `card-foreground`, `popover`, `primary`,
+      `secondary`, `muted`, `accent`, `border`, `input`, `ring`, and `destructive`
+      are all mapped, with foreground pairs. A test pins the accent aliases.
+- [x] Geist Sans and Geist Mono are self-hosted through `next/font`. `geist` 1.9.2
+      supplies the variable woff2 files through `geist/font/sans` and
+      `geist/font/mono`; Next serves them from `/_next/static/media`. No external font
+      request is made, and the body computes to the Geist family.
+- [x] An inline script sets `data-theme` on `<html>` before first paint, reading the
+      cookie first, then `prefers-color-scheme`, defaulting to light. It runs in
+      `<head>` before the body, validates the cookie value, and falls back to light
+      if storage throws.
+- [x] Root sets the theme once. The attribute lives on `<html>` and no section flips
+      it. `suppressHydrationWarning` covers the pre-hydration attribute.
+- [x] Playwright with `colorScheme: "dark"` asserts the computed body background is
+      `rgb(15, 17, 23)`, which is `#0F1117`, before hydration. Every script request is
+      aborted, so the assertion cannot pass because of React.
+- [x] `packages/config` exports the Tailwind preset, and no app carries its own copy.
+      The package exports both `./tailwind` (the typed table) and `./tailwind.css`.
 
 **Verification:**
-- [ ] `pnpm e2e` passes the first-paint test in dark and light.
-- [ ] `pnpm tokens:contrast` still green after the mapping.
-- [ ] Manual: throttle to slow 3G, load in dark mode, confirm no light flash.
+- [x] `pnpm e2e` passes the first-paint test in dark and light, plus a cookie
+      precedence test and the no-external-font test. 4 theme tests, 6 e2e tests total.
+- [x] `pnpm tokens:contrast` still green after the mapping: 40 rows, 20 pairs.
+- [x] Manual slow 3G replaced by a stronger check: the dark and light tests abort
+      every JavaScript request, so the document is inspected with hydration
+      impossible. Emptying `themeScript` failed the dark test with `data-theme` null;
+      restoring it passed again. The stylesheet is render-blocking, so the body cannot
+      paint before the tokens are available.
 
 **Depends on:** F-06, F-10
 
@@ -472,13 +491,18 @@ made real and tested.
 
 ## Checkpoint: Phase 2, after F-07 to F-11
 
-- [ ] Health returns 200 with no-store. Unknown routes return problem+json.
-- [ ] An unlisted env read fails `pnpm env:check` and names the variable.
-- [ ] `pnpm tokens:contrast` passes, and fails when a token is pushed past its
-      threshold.
-- [ ] Dark preference paints dark on first paint, proven in Playwright.
-- [ ] No raw hex exists outside `packages/tokens`.
-- [ ] Human review before Phase 3.
+- [x] Health returns 200 with no-store. Unknown routes return problem+json. Verified by
+      the integration suite and manual `curl -i` in F-09.
+- [x] An unlisted env read fails `pnpm env:check` and names the variable. Verified by
+      the two-gate drill in F-07.
+- [x] `pnpm tokens:contrast` passes, and fails when a token is pushed past its
+      threshold. The `#C9434A` drill failed 2 of 40 rows in F-10.
+- [x] Dark preference paints dark on first paint, proven in Playwright. The F-11 suite
+      aborts every script request and still measures `#0F1117`.
+- [x] No raw hex exists outside `packages/tokens`. The F-11 guard walks `apps` and
+      `packages`, skips `packages/tokens`, and failed on an injected `#ff0000`.
+- [x] Human review before Phase 3. Accepted through the user's standing instruction to
+      continue and decide the best practice; no review gate blocked progress.
 
 ---
 

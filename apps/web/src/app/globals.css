@@ -1,15 +1,28 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@import "tailwindcss";
+@import "@loopnote/tokens/tokens.css";
+@import "@loopnote/config/tailwind.css";
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
+/* Components live in a workspace package, outside the app directory. Tailwind v4
+   only scans the app by default, so name the source tree here. */
+@source "../../../../packages/ui/src";
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.5;
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
 }

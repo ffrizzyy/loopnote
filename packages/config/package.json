@@ -11,6 +11,12 @@
     },
     "./eslint/base": "./eslint/base.js",
     "./eslint/react": "./eslint/react.js",
+    "./tailwind": {
+      "types": "./dist/tailwind.d.ts",
+      "import": "./dist/tailwind.js",
+      "default": "./dist/tailwind.js"
+    },
+    "./tailwind.css": "./src/tailwind.css",
     "./tsconfig/base.json": "./tsconfig/base.json",
     "./tsconfig/react.json": "./tsconfig/react.json",
     "./tsconfig/node.json": "./tsconfig/node.json"

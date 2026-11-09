@@ -1,6 +1,10 @@
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
+
 import type { Metadata } from "next";
 
 import { loadEnv } from "@/env";
+import { themeScript } from "@/lib/theme";
 
 import "./globals.css";
 
@@ -16,7 +20,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id">
+    // The inline script sets data-theme before React hydrates, so the attribute
+    // that arrives in the DOM is expected to differ from the server render.
+    <html
+      lang="id"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

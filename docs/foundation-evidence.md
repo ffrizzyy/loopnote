@@ -135,3 +135,37 @@ F-10, 2026-11-08. The palette is data, and contrast is a gate.
 - The ratio test pins all 40 rows to three decimals. A new pair without a pin, or a
   stale pin without a pair, also fails.
 - `pnpm verify:full`: 51 unit tests, 4 integration tests, and 2 e2e tests green.
+
+### Theme, fonts, first paint
+
+F-11, 2026-11-09. Tailwind reads the palette, Geist ships from the app, and the theme
+is decided before the body exists.
+
+- `packages/config/src/tailwind.ts` is the theme table and
+  `packages/config/src/tailwind.css` is its generated mirror. The package exports
+  `./tailwind` and `./tailwind.css`; `apps/web/src/app/globals.css` imports the CSS
+  once. The unit test compares the file to `renderTailwindThemeCss()` and checks that
+  every palette variable appears in the map.
+- The map has 33 colour keys: the 15 palette colours plus the shadcn names.
+  `--color-primary` is `var(--accent)` and `--color-accent` is `var(--accent-soft)`,
+  so shadcn hover fills never compete with the one brand accent.
+- Radii are `--radius-sm` 6 px, `md` 10 px, `lg` 16 px, `xl` 20 px, and `full` the
+  full token. The theme test pins the mapping.
+- Geist ships through the `geist` 1.9.2 package, which wraps `next/font/local`. The
+  built page preloads `Geist_Variable-s.p.*.woff2` and `GeistMono_Variable.p.*.woff2`
+  from `/_next/static/media`. Playwright saw no `fonts.googleapis.com` or
+  `fonts.gstatic.com` request and the body computed to the Geist family.
+- The inline theme script is the first script after the stylesheet in `<head>`. It
+  reads `loopnote_theme`, then `prefers-color-scheme`, and starts at light. Unit tests
+  run the exact shipped source in a VM: cookie beats system, an unknown cookie falls
+  back to system, and a throwing cookie read falls back to light.
+- First paint drill: every `*.js` request is aborted, so React cannot hydrate. Dark
+  preference still produced `data-theme="dark"`, body `rgb(15, 17, 23)` (`#0F1117`),
+  and `--accent: #f0787d`. Light produced `#F6F7F9` and `--accent: #b93a41`.
+- Failure drill: emptying `themeScript` made the dark test fail with `data-theme`
+  null. Restoring it passed. A `// drill: #ff0000` line in `page.tsx` failed the raw
+  hex guard; removing it passed.
+- `pnpm tokens:contrast` stayed at 40 passing rows after the mapping.
+- `pnpm verify:full`: 64 unit tests, 4 integration tests, and 6 e2e tests green.
+  Coverage: 98.5 percent statements, 92.3 percent branches, 100 percent functions and
+  lines.
