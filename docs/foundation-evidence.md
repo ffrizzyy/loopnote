@@ -169,3 +169,5 @@ is decided before the body exists.
 - `pnpm verify:full`: 64 unit tests, 4 integration tests, and 6 e2e tests green.
   Coverage: 98.5 percent statements, 92.3 percent branches, 100 percent functions and
   lines.
+- Clean clone at `35672c9`: `pnpm install --frozen-lockfile` finished in 19.1 s,
+  `pnpm verify` passed with 64 unit tests, and `pnpm e2e` passed 6 tests.

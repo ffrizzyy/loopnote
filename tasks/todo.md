@@ -503,6 +503,8 @@ made real and tested.
       `packages`, skips `packages/tokens`, and failed on an injected `#ff0000`.
 - [x] Human review before Phase 3. Accepted through the user's standing instruction to
       continue and decide the best practice; no review gate blocked progress.
+- [x] Clean clone at `35672c9`: frozen install, `pnpm verify`, and `pnpm e2e` all
+      green.
 
 ---
 
